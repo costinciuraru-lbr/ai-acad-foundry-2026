@@ -49,9 +49,14 @@ def _require_config() -> None:
     if settings.azure_ai_auth.lower() == "key":
         raise FoundryUnavailable(
             "The Agent Service requires Microsoft Entra authentication — API keys are "
-            "not accepted. Set AZURE_AI_AUTH=identity and run `az login`. "
-            "(Inside Docker there is no `az login` to borrow, so this lane is "
-            "unavailable there by design.)"
+            "not accepted. Two ways to provide an identity:\n"
+            "  • running on your machine: set AZURE_AI_AUTH=identity and run `az login`;\n"
+            "  • running in a container: give it a service principal — set "
+            "AZURE_CLIENT_ID, AZURE_CLIENT_SECRET and AZURE_TENANT_ID in .env, plus "
+            "DOCKER_AZURE_AI_AUTH=identity. DefaultAzureCredential picks those up first, "
+            "so the same code works with no `az login` present.\n"
+            "In Azure itself the container would use a managed identity and need no "
+            "secret at all. See the backend README, 'Identity inside a container'."
         )
 
 

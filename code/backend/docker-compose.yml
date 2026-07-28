@@ -17,10 +17,17 @@ services:
     environment:
       # inside the compose network the DB is a hostname, not a mapped port
       QDRANT_URL: http://qdrant:6333
-      # a container cannot see your `az login`, so the Azure lane uses the key here.
-      # Locally (uv run uvicorn) the same .env keeps AZURE_AI_AUTH=identity — one
-      # codebase, both authentication lanes, decided by where it runs.
-      AZURE_AI_AUTH: key
+      # A container cannot see your `az login`, so the default here is key auth —
+      # which is enough for chat and embeddings, but NOT for the Agent Service or
+      # the control plane, both of which require Microsoft Entra.
+      #
+      # To get a real identity in the container, give it a service principal
+      # (AZURE_CLIENT_ID / AZURE_CLIENT_SECRET / AZURE_TENANT_ID in .env — env_file
+      # passes them through) and set DOCKER_AZURE_AI_AUTH=identity in .env.
+      # DefaultAzureCredential tries EnvironmentCredential first, so nothing else
+      # changes. Deployed to Azure, the same code uses a managed identity instead
+      # and needs no secret at all.
+      AZURE_AI_AUTH: ${DOCKER_AZURE_AI_AUTH:-key}
       # uncomment to reach LM Studio running on the HOST from inside the container:
       # LMSTUDIO_BASE_URL: http://host.docker.internal:1234/v1
     volumes:
@@ -36,7 +43,8 @@ services:
     ports:
       - "7800:7800"
     environment:
-      # inside the compose network the API is a hostname, not localhost
+      # inside the compose network the API is a hostname, not localhost.
+      # docker-compose.host-api.yml points this at the host instead.
       VITE_API_TARGET: http://api:7799
     volumes:
       - ../frontend/src:/srv/src              # live reload: edit locally, HMR in the browser
@@ -44,6 +52,9 @@ services:
       - ../frontend/vite.config.js:/srv/vite.config.js   # proxy routes, without a rebuild
     depends_on:
       - api
+    extra_hosts:
+      # "the machine running Docker" — unused in this lane, required by the host-api one
+      - "host.docker.internal:host-gateway"
 
 volumes:
   qdrant-data:

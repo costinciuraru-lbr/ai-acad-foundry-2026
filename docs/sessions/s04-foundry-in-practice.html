@@ -32,6 +32,7 @@
       <a class="side-nav__link" href="#web">Web: scraping vs grounding</a>
       <a class="side-nav__link" href="#agent-build">Building the agent</a>
       <a class="side-nav__link" href="#agent-deploy">Deploying it to Foundry</a>
+      <a class="side-nav__link" href="#agent-recipe">The complete recipe</a>
       <a class="side-nav__link" href="#automation">Everything from the CLI</a>
       <a class="side-nav__link" href="#console">The console GUI</a>
       <a class="side-nav__link" href="#lab-b">Lab B — build your own</a>
@@ -447,6 +448,23 @@ pip install azure-ai-inference azure-identity</code></pre>
         <p class="prose"><strong>Expected:</strong> your prompt now shows <code>(.venv)</code>, and
           pip reports the packages installed. That prefix is your reminder that the environment is
           active; if it disappears (new terminal), activate it again before running anything.</p>
+        <div class="callout callout--tip">
+          <p class="callout__title">uv — the faster way, used by the course backend</p>
+          <p><code>uv</code> replaces <code>venv</code> + <code>pip</code> with one tool and is what
+            <code>code/backend</code> is locked with. Install it in PowerShell with
+            <code>powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"</code>,
+            then <strong>open a new terminal</strong> — a terminal reads <code>PATH</code> only when
+            it starts, which is why "uv is not recognized" is almost always a terminal that is older
+            than the installation. After that, <code>uv sync</code> creates the environment and
+            <code>uv run …</code> uses it without activating anything.</p>
+          <p>Prefer the plain way, or uv is unavailable? <code>py -3.12 -m venv .venv</code>,
+            activate it, and <code>pip install -r requirements.txt</code> — that file is generated
+            from <code>uv.lock</code>, so both paths install identical versions. If
+            <code>Activate.ps1</code> is blocked, either
+            <code>Set-ExecutionPolicy RemoteSigned -Scope CurrentUser</code> or skip activation and
+            call <code>.\.venv\Scripts\python.exe -m uvicorn …</code> directly. The full symptom
+            table is in the <a href="../../code/backend/README.md">backend README</a>.</p>
+        </div>
 
         <h3>Step 4 — prove the whole chain works (≈8′)</h3>
         <p class="prose">This script does something deliberately small and enormously informative:
@@ -1654,7 +1672,7 @@ else:
             <tbody>
               <tr><td>A Foundry <em>project</em> (not just a resource)</td><td>Agents are project-scoped objects</td><td>Created for you when you create the Foundry resource; visible in ai.azure.com</td></tr>
               <tr><td>A model deployment in that project</td><td>The agent needs a model to run on</td><td>Lab B, step 3 — you already deployed one</td></tr>
-              <tr><td><strong>Entra authentication</strong> — keys are refused</td><td>The Agent Service is Entra-only by design</td><td><code>az login</code>, plus the <em>Azure AI User</em> role on the project</td></tr>
+              <tr><td><strong>Entra authentication</strong> — keys are refused</td><td>The Agent Service is Entra-only by design</td><td>On your machine: <code>az login</code>. In a container: a service principal or a managed identity. Plus the <em>Azure AI User</em> role on the project</td></tr>
             </tbody>
           </table>
         </div>
@@ -1754,6 +1772,323 @@ Next:
             <code>azure-ai-projects</code> version, the error will say so — check the package's
             current documentation and adjust. The local lane never depends on this, which is
             precisely why the demo path is local first.</p>
+        </div>
+      </section>
+
+      <!-- ============ AGENT RECIPE ============ -->
+      <section id="agent-recipe" class="doc-section">
+        <div>
+          <span class="eyebrow">Reference · follow this linearly</span>
+          <h2>The complete recipe: <span class="gradient-text">from empty file to running agent</span></h2>
+        </div>
+        <p class="prose">The previous two sections explained the ideas. This one is the procedure —
+          every step, every command, every click, in order, with nothing assumed. Follow it once
+          and you will have written a persona, run it locally, published it to Azure, seen it in
+          the portal, invoked it four different ways, updated it and deleted it.</p>
+
+        <h3>0 · Two words that are easy to confuse</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Word</th><th>What it is</th><th>Where it lives</th><th>Who can use it</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Persona</strong></td>
+                <td>A JSON file describing behaviour: instructions, style rules, temperature</td>
+                <td><code>code/backend/app/agents/personas/&lt;name&gt;.json</code> — in your repository</td>
+                <td>This application, in <em>local</em> mode</td>
+              </tr>
+              <tr>
+                <td><strong>Agent</strong></td>
+                <td>A stored definition inside Azure AI Foundry, created <em>from</em> a persona</td>
+                <td>Your Foundry project — visible in <code>ai.azure.com</code></td>
+                <td>Anything that can authenticate: this app, another team's app, the portal</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">Deploying is the act of copying the first into the second. The file stays
+          where it is; nothing is moved or consumed. An agent whose persona file you later delete
+          keeps working in Azure — and the console will show it as <em>Foundry only</em>.</p>
+
+        <h3>1 · Prerequisites — verify, don't assume</h3>
+        <p class="prose">Four things must be true before a deployment can succeed. Check them in
+          this order; each command prints something if it is satisfied.</p>
+        <div class="code-block">
+          <span class="code-block__label">the four checks</span>
+          <pre><code># 1 · you are signed in with a Microsoft Entra identity
+az account show --query "{user:user.name, subscription:name}" -o yaml
+
+# 2 · a chat model is deployed (the agent needs something to run on)
+az cognitiveservices account deployment list \
+  --name &lt;your-resource&gt; --resource-group &lt;your-rg&gt; \
+  --query "[].{deployment:name, model:properties.model.name}" -o table
+
+# 3 · you hold a data-plane role on the resource
+az role assignment create --assignee $(az ad signed-in-user show --query id -o tsv) \
+  --role "Azure AI User" \
+  --scope $(az cognitiveservices account show --name &lt;your-resource&gt; \
+            --resource-group &lt;your-rg&gt; --query id -o tsv)
+
+# 4 · the project endpoint is in .env  (Foundry portal → your project → Overview)
+#     AZURE_AI_PROJECT_ENDPOINT=https://&lt;resource&gt;.services.ai.azure.com/api/projects/&lt;project&gt;
+#     AZURE_AI_AUTH=identity</code></pre>
+        </div>
+        <div class="callout callout--warn">
+          <p class="callout__title">The one that catches everyone</p>
+          <p>The Agent Service accepts <strong>only</strong> Entra authentication — an API key is
+            refused, whatever else is correct. Run the backend on your machine after
+            <code>az login</code>, or give a container a service principal (see the previous
+            section). If <code>AZURE_AI_AUTH=key</code>, stop here: nothing below will work.</p>
+        </div>
+        <p class="prose">Fastest way to confirm all four at once — the backend answers it:</p>
+        <div class="code-block">
+          <span class="code-block__label">one call that proves you are ready</span>
+          <pre><code>curl http://localhost:7799/agents
+
+# look for:  "foundry": { "available": true, "reason": null }
+# if available is false, the reason field tells you exactly which check failed</code></pre>
+        </div>
+
+        <h3>2 · Write the persona</h3>
+        <p class="prose">Create a new file in <code>code/backend/app/agents/personas/</code>. The
+          file name — without <code>.json</code> — becomes the agent's name everywhere: in the API,
+          in the console, and in Azure. Use lowercase and hyphens.</p>
+        <div class="code-block">
+          <span class="code-block__label">app/agents/personas/mortgage-advisor.json</span>
+          <pre><code>{
+  "display_name": "Mortgage Advisor",
+  "description": "Explains mortgage products and repayment rules to a customer.",
+  "instructions": "You are a mortgage advisor at a retail bank. You explain products, rates and repayment rules to customers in plain language, and you are precise about numbers.",
+  "style_rules": [
+    "Lead with the direct answer, then the condition it depends on.",
+    "Always state whether a figure is fixed or variable.",
+    "Never quote a rate that is not in the source material."
+  ],
+  "temperature": 0.3,
+  "max_tokens": 2000,
+  "reasoning_effort": "low",
+  "require_citations": true,
+  "refuse_when_unsupported": true
+}</code></pre>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Field</th><th>Required</th><th>What it does</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>display_name</code></td><td>no</td><td>Shown in the console; defaults to the file name</td></tr>
+              <tr><td><code>description</code></td><td>no</td><td>One line, shown in lists and stored with the hosted agent</td></tr>
+              <tr><td><code>instructions</code></td><td><strong>yes</strong></td><td>The heart: who the agent is and what it does. Becomes the first block of the system prompt</td></tr>
+              <tr><td><code>style_rules</code></td><td>no</td><td>A list; each becomes a bullet under "Style rules you must follow". This is where visible behaviour usually comes from</td></tr>
+              <tr><td><code>temperature</code></td><td>no</td><td>0 = focused and repeatable, 1 = varied. Overrides the <code>.env</code> default</td></tr>
+              <tr><td><code>max_tokens</code></td><td>no</td><td>Cap on the completion. Keep it generous on reasoning models — see the warning below</td></tr>
+              <tr><td><code>reasoning_effort</code></td><td>no</td><td><code>minimal</code>…<code>high</code>. Reasoning models spend part of the budget thinking; <code>low</code> leaves more for the visible answer</td></tr>
+              <tr><td><code>require_citations</code></td><td>no</td><td>When grounded, demand <code>[1] [2]</code> markers. Default true</td></tr>
+              <tr><td><code>refuse_when_unsupported</code></td><td>no</td><td>When grounded, forbid answering beyond the passages. Default true</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout callout--warn">
+          <p class="callout__title">If your agent returns an empty answer</p>
+          <p>A reasoning model can consume the entire <code>max_tokens</code> budget on internal
+            deliberation and emit nothing. Raise <code>max_tokens</code> to about 2000 and set
+            <code>"reasoning_effort": "low"</code> — that combination is why the shipped personas
+            look the way they do.</p>
+        </div>
+        <p class="prose">Save the file. <strong>No restart is needed</strong> — the persona is
+          re-read whenever it changes on disk. Confirm it was picked up, and read the system prompt
+          your JSON actually produces:</p>
+        <div class="code-block">
+          <span class="code-block__label">verify the persona</span>
+          <pre><code>curl http://localhost:7799/agents            # your file should be in the list
+curl http://localhost:7799/agents/mortgage-advisor   # the exact system prompt it composes</code></pre>
+        </div>
+        <p class="prose">Or in the console: <strong>Agents</strong> → your row → <em>prompt</em>.
+          The row will read <span class="badge badge--navy">local only</span> — a file exists,
+          nothing is in Azure yet.</p>
+
+        <h3>3 · Try it locally, before deploying anything</h3>
+        <p class="prose">Deploying an untested persona wastes a round trip. Run it in local mode
+          first, where the loop is in your process and iteration is instant:</p>
+        <div class="code-block">
+          <span class="code-block__label">three ways to test locally</span>
+          <pre><code># the console: Chat → pick your agent → keep the lane on "local agent"
+
+# the API
+curl -X POST http://localhost:7799/ask -H "Content-Type: application/json" -d '{
+  "question": "Can I repay my mortgage early?",
+  "use_rag": true, "top_k": 2,
+  "agent": "mortgage-advisor", "agent_mode": "local"
+}'
+
+# every persona at once, side by side
+uv run python examples/10_agent_local.py "Can I repay my mortgage early?"</code></pre>
+        </div>
+        <p class="prose">Edit the JSON, save, ask again. Iterate here until the behaviour is what
+          you want — <em>then</em> publish.</p>
+
+        <h3>4 · Deploy it — four routes to the same result</h3>
+        <p class="prose">All four call the same REST endpoint and produce the same agent. Choose by
+          what you are doing, not by preference:</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Route</th><th>Command / click</th><th>Use it when</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Console</strong></td>
+                <td><strong>Agents</strong> → your row → <em>deploy to Foundry</em></td>
+                <td>Demonstrating to a room — one click, visible result</td>
+              </tr>
+              <tr>
+                <td><strong>API</strong></td>
+                <td><code>POST /agents/mortgage-advisor/deploy</code></td>
+                <td>From Swagger or Postman, or from another program</td>
+              </tr>
+              <tr>
+                <td><strong>Python</strong></td>
+                <td><code>uv run python scripts/deploy_agent.py mortgage-advisor</code></td>
+                <td>Scripting it, or showing the SDK-style path</td>
+              </tr>
+              <tr>
+                <td><strong>Shell</strong></td>
+                <td><code>./scripts/azure/03-create-agent.ps1 -Persona mortgage-advisor</code><br>
+                    <code>./scripts/azure/03-create-agent.sh mortgage-advisor</code></td>
+                <td>CI, or showing the raw HTTP call under everything</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="code-block">
+          <span class="code-block__label">what a successful deploy prints</span>
+          <pre><code>$ uv run python scripts/deploy_agent.py mortgage-advisor
+
+→ deploying persona 'mortgage-advisor' (Mortgage Advisor)
+  project : https://&lt;resource&gt;.services.ai.azure.com/api/projects/proj-default
+  model   : gpt-5-mini
+
+✓ agent created
+  id   : asst_9xK2…
+  name : mortgage-advisor</code></pre>
+        </div>
+        <p class="prose">Whichever route you used, the console row now reads
+          <span class="badge badge--cyan">local + Foundry</span> and shows the agent id. Both lanes
+          work from here.</p>
+
+        <h3>5 · See it in the Azure portal — where to click</h3>
+        <p class="prose">This is the moment worth showing a class: the file you wrote is now an
+          object in Azure that other systems can call.</p>
+        <div class="diagram">
+          <div class="dg-stack">
+            <div class="dg-row">
+              <div class="dg-box">1 · <strong>ai.azure.com</strong><br><span class="dg-note">sign in with the same account</span></div>
+              <span class="dg-arrow">→</span>
+              <div class="dg-box">2 · pick your <strong>project</strong><br><span class="dg-note">top-left selector, e.g. proj-default</span></div>
+              <span class="dg-arrow">→</span>
+              <div class="dg-box dg-box--accent">3 · left menu → <strong>Agents</strong><br><span class="dg-note">your agent is in the list, by name</span></div>
+            </div>
+            <div class="dg-row">
+              <div class="dg-box">4 · click it<br><span class="dg-note">its instructions — the text your JSON composed</span></div>
+              <span class="dg-arrow">→</span>
+              <div class="dg-box">5 · <strong>Try in playground</strong><br><span class="dg-note">talk to it without your app</span></div>
+              <span class="dg-arrow">→</span>
+              <div class="dg-box dg-box--muted">6 · <strong>Threads / runs</strong><br><span class="dg-note">every execution, including the ones your app started</span></div>
+            </div>
+          </div>
+          <p class="diagram__caption">The portal path. Step 5 is the proof that the agent is independent of your application — the portal is just another client.</p>
+        </div>
+        <p class="prose">The console links straight there: <strong>Agents</strong> →
+          <em>open Foundry portal</em>, or <strong>Status</strong> → the Azure panel. And to see
+          the same list without a browser:</p>
+        <div class="code-block">
+          <span class="code-block__label">the portal's list, from the terminal</span>
+          <pre><code>curl http://localhost:7799/agents/hosted
+./scripts/azure/05-inspect.ps1              # includes hosted agents, deployments and roles</code></pre>
+        </div>
+
+        <h3>6 · Run the hosted agent</h3>
+        <p class="prose">Four ways again, and the difference from step 3 is exactly one field:</p>
+        <div class="code-block">
+          <span class="code-block__label">invoking the hosted copy</span>
+          <pre><code># console: Chat → your agent → switch the lane to "Foundry agent"
+
+# API — note agent_mode
+curl -X POST http://localhost:7799/ask -H "Content-Type: application/json" -d '{
+  "question": "Can I repay my mortgage early?",
+  "use_rag": true, "top_k": 2,
+  "agent": "mortgage-advisor", "agent_mode": "foundry"
+}'
+
+# Python, without the API in the way
+uv run python scripts/invoke_agent.py "Can I repay my mortgage early?" --persona mortgage-advisor
+
+# shell, narrating each of the four HTTP calls
+./scripts/azure/04-invoke-agent.ps1 -Persona mortgage-advisor -Question "Can I repay my mortgage early?"</code></pre>
+        </div>
+        <p class="prose">In the response, <code>agent.mode</code> reads <code>foundry</code> and
+          <code>system_prompt</code> says the instructions live in Azure — because they do. Expect
+          it to be <strong>slower</strong> than local (roughly 15–35 seconds versus a few): the
+          platform is running the loop, polling included. That is the cost of the capabilities the
+          hosted lane buys.</p>
+
+        <h3>7 · Change it later</h3>
+        <p class="prose">Edit the JSON and deploy again. The deploy is idempotent: it looks for an
+          agent with the same name and <em>updates</em> it rather than creating a duplicate — the
+          agent id stays the same, so anything already pointing at it keeps working.</p>
+        <div class="code-block">
+          <span class="code-block__label">the edit loop</span>
+          <pre><code># 1 · edit app/agents/personas/mortgage-advisor.json
+# 2 · local mode already reflects it — no deploy, no restart
+# 3 · to update the hosted copy as well:
+uv run python scripts/deploy_agent.py mortgage-advisor      # prints "agent updated"</code></pre>
+        </div>
+        <div class="callout callout--tip">
+          <p class="callout__title">The two copies can drift — deliberately notice this</p>
+          <p>After editing the file, <em>local</em> mode changes immediately and <em>Foundry</em>
+            mode does not, until you redeploy. Ask the same question in both lanes right after an
+            edit and you will see two different answers. That is not a bug; it is what "deployed"
+            means, and it is the same reason production systems have release steps.</p>
+        </div>
+
+        <h3>8 · Remove it</h3>
+        <div class="code-block">
+          <span class="code-block__label">deleting the hosted agent</span>
+          <pre><code># console: Agents → your row → "remove from Foundry" → confirm
+
+# API
+curl -X DELETE http://localhost:7799/agents/hosted/asst_9xK2…
+
+# the local JSON file is NOT touched — the persona still works in local mode,
+# and the row goes back to "local only".</code></pre>
+        </div>
+
+        <h3>9 · When it does not work</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>What you see</th><th>What it means</th><th>Fix</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>503</code> "requires Microsoft Entra authentication"</td><td>You are on key auth</td><td>Run locally after <code>az login</code>, or give the container a service principal</td></tr>
+              <tr><td><code>503</code> "AZURE_AI_PROJECT_ENDPOINT is not set"</td><td>The project endpoint is missing</td><td>Foundry portal → project → Overview → copy it into <code>.env</code></td></tr>
+              <tr><td><code>404</code> "No persona named …"</td><td>File name and agent name disagree</td><td>The name is the file name without <code>.json</code>, lowercase</td></tr>
+              <tr><td><code>403</code> on deploy</td><td>Authenticated, not authorized</td><td>Assign <em>Azure AI User</em> on the resource; wait a minute for it to propagate</td></tr>
+              <tr><td>Foundry option greyed out in Chat</td><td>That agent is not deployed</td><td>Deploy it from the Agents view, then refresh</td></tr>
+              <tr><td>All agents show <em>Foundry: unknown</em></td><td>The Agent Service could not be queried at all</td><td>Hover the badge — it carries the reason. Usually key auth</td></tr>
+              <tr><td>The answer is empty</td><td>Reasoning consumed the token budget</td><td><code>max_tokens</code> ≈ 2000 and <code>"reasoning_effort": "low"</code></td></tr>
+              <tr><td>Run times out</td><td>First call to a new agent is slow</td><td>Try again; check the run in the portal if it persists</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout callout--success">
+          <p class="callout__title">You have finished the recipe when</p>
+          <p>Your own persona answers in <em>both</em> lanes, appears under <strong>Agents</strong>
+            in <code>ai.azure.com</code>, and you can explain what stayed on your disk and what
+            went to Azure.</p>
         </div>
       </section>
 
@@ -1958,14 +2293,64 @@ npm run dev                      # http://localhost:7800 — proxies to :7799</c
               <tr><th></th><th>Docker</th><th>Local</th></tr>
             </thead>
             <tbody>
-              <tr><td><strong>Authentication</strong></td><td>API key</td><td>Microsoft Entra (<code>az login</code>)</td></tr>
+              <tr><td><strong>Authentication</strong></td><td>API key <em>by default</em></td><td>Microsoft Entra (<code>az login</code>)</td></tr>
               <tr><td><strong>Chat &amp; embeddings</strong></td><td>work</td><td>work</td></tr>
-              <tr><td><strong>Agent Service</strong></td><td>unavailable — keys are refused</td><td>available</td></tr>
-              <tr><td><strong>Deployment list (control plane)</strong></td><td>unavailable</td><td>available</td></tr>
+              <tr><td><strong>Agent Service</strong></td><td>unavailable with a key — available with a service principal</td><td>available</td></tr>
+              <tr><td><strong>Deployment list (control plane)</strong></td><td>same</td><td>available</td></tr>
               <tr><td><strong>Best for</strong></td><td>handing students a working stack in one command</td><td>demonstrating the Azure surface</td></tr>
             </tbody>
           </table>
         </div>
+
+        <h3>Three ways a program proves who it is</h3>
+        <p class="prose">The container default is a convenience, not a limit — and the
+          distinction is worth making explicitly, because "keys don't work in Docker, so use a
+          key" is precisely the confusion this course exists to remove. A program can hold an
+          Entra identity in three ways, and they form a clear order of preference:</p>
+        <div class="diagram">
+          <div class="dg-row">
+            <div class="dg-box dg-box--accent" style="flex:1;">
+              <strong>Managed identity</strong>
+              <span class="dg-note">Running <em>in</em> Azure. The platform issues the token; there is
+                no secret anywhere to store, leak or rotate. Session 6 uses this.</span>
+            </div>
+            <span class="dg-arrow">→</span>
+            <div class="dg-box" style="flex:1;">
+              <strong>Service principal</strong>
+              <span class="dg-note">An application identity with an id and a secret, read from the
+                environment. What a container outside Azure uses — including on your laptop.</span>
+            </div>
+            <span class="dg-arrow">→</span>
+            <div class="dg-box dg-box--muted" style="flex:1;">
+              <strong>API key</strong>
+              <span class="dg-note">Not an identity at all: a bearer secret with no expiry, no
+                attribution, no scope. Last resort.</span>
+            </div>
+          </div>
+          <p class="diagram__caption">Preference order. <code>DefaultAzureCredential</code> reads all three from the same chain — the code never changes, only where it runs.</p>
+        </div>
+        <p class="prose">To give this container a real identity, create a service principal scoped
+          to your Foundry resource and put its three values in <code>.env</code>:</p>
+        <div class="code-block">
+          <span class="code-block__label">a container with an identity, not a key</span>
+          <pre><code>RES=$(az cognitiveservices account show --name &lt;resource&gt; \
+      --resource-group &lt;rg&gt; --query id -o tsv)
+
+az ad sp create-for-rbac --name sp-libra-console \
+  --role "Azure AI User" --scopes "$RES"
+
+# paste what it prints into code/backend/.env:
+#   DOCKER_AZURE_AI_AUTH=identity
+#   AZURE_CLIENT_ID=&lt;appId&gt;
+#   AZURE_CLIENT_SECRET=&lt;password&gt;
+#   AZURE_TENANT_ID=&lt;tenant&gt;
+
+docker compose up -d          # hosted agents now work inside the container too</code></pre>
+        </div>
+        <p class="prose"><code>DefaultAzureCredential</code> checks environment variables
+          <em>first</em>, before it ever looks for the Azure CLI — so nothing in the application
+          changes. That is the same property that lets the identical code run unchanged in Azure,
+          where a managed identity satisfies the chain and no secret exists at all.</p>
         <div class="table-wrap">
           <table>
             <thead>

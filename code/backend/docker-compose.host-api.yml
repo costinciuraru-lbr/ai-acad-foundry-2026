@@ -1,0 +1,35 @@
+# The hybrid lane: the API runs on your machine, Qdrant and the console stay in Docker.
+#
+# Why anyone would want this — the API is the only part that needs your Azure identity.
+# `az login` writes its token cache into your user profile, which a container cannot see,
+# so an API in Docker falls back to key auth and the Agent Service goes dark. Run the API
+# on the host and it inherits the login; everything else is happier in a container.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.host-api.yml up
+#
+# The console reaches the API by the name host.docker.internal, and what that name costs
+# you depends on which Docker you are running:
+#
+#   Docker Desktop (Windows, macOS) — the name is built in and routes to the host's
+#     loopback, so a plain `uvicorn --port 7799` is already reachable. Nothing to do.
+#
+#   Docker Engine on Linux — there is no such name. The extra_hosts entry in
+#     docker-compose.yml creates it, pointing at the bridge gateway (the compose form of
+#     `--add-host=host.docker.internal:host-gateway`). That is a real network interface
+#     rather than loopback, so uvicorn also has to stop listening only on 127.0.0.1:
+#
+#       uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 7799
+#
+#     which publishes the API to your local network too — worth a thought on open Wi-Fi.
+
+services:
+  api:
+    # Not started in this lane — it would collide with your local uvicorn on 7799.
+    # A profile no one enables is how Compose says "skip this service".
+    profiles: ["docker-api"]
+
+  console:
+    environment:
+      VITE_API_TARGET: http://host.docker.internal:7799
+    # Without this the api dependency would drag the profiled-out service back in.
+    depends_on: !reset []

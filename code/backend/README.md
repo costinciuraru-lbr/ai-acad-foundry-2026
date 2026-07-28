@@ -17,6 +17,76 @@ text ─► POST /chunk ─► POST /ingest ─► Qdrant ─► POST /search �
 - **Postman:** import `postman/rag-teaching-api.postman_collection.json`
 - **Deps:** managed with [uv](https://docs.astral.sh/uv/) (`pyproject.toml` + `uv.lock`)
 
+## Python setup on Windows — uv, or a plain virtual environment
+
+`uv` is a fast replacement for `python -m venv` + `pip`. It is what the project is
+locked with, but **it is not required** — a plain virtual environment works too.
+
+### Option 1 — install uv (recommended)
+
+```powershell
+# PowerShell, no admin rights needed
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# or, if you have either of these
+winget install --id=astral-sh.uv -e
+pip install uv
+```
+
+The installer puts `uv.exe` in `%USERPROFILE%\.local\bin` and adds it to your `PATH`.
+**Close the terminal and open a new one** — a terminal reads `PATH` when it starts, so
+an already-open one will still say "uv is not recognized". Then:
+
+```powershell
+uv --version
+cd code\backend
+uv sync                                   # creates .venv and installs from uv.lock
+uv run uvicorn app.main:app --reload --port 7799
+```
+
+`uv run` uses `code/backend/.venv` automatically — you never activate anything.
+
+### Option 2 — plain venv + pip, no uv at all
+
+```powershell
+cd code\backend
+py -3.12 -m venv .venv                    # `py` is the Windows Python launcher
+.\.venv\Scripts\Activate.ps1              # your prompt now shows (.venv)
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 7799
+```
+
+`requirements.txt` is generated from `uv.lock`, so both paths install exactly the same
+versions. Regenerate it after changing dependencies:
+
+```powershell
+uv export --format requirements-txt --no-hashes --no-dev -o requirements.txt
+```
+
+If `Activate.ps1` is blocked by execution policy:
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+# or sidestep activation entirely — call the interpreter directly:
+.\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 7799
+```
+
+### When `uv run` misbehaves
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `uv : The term 'uv' is not recognized` | Terminal opened before installation | Close every terminal, open a new one |
+| `warning: VIRTUAL_ENV=…\venv does not match the project environment path .venv` | **Another virtual environment is active** — often one at the repository root | Harmless: uv ignores it and uses `.venv`. To silence it, run `deactivate`, or add `--active` to use the active one instead |
+| `No such file or directory: pyproject.toml` | You are in the wrong folder | `uv run` must be run from `code/backend` |
+| `ModuleNotFoundError: fastapi` | Dependencies not installed | `uv sync` (or `pip install -r requirements.txt`) |
+| `Address already in use` on 7799 | The Docker API container is still running | `docker compose stop api`, or use `--port 7801` |
+| `python` points somewhere unexpected | A stale venv is activated in this shell | `deactivate`, then check with `where.exe python` |
+
+Everything below assumes one of the two setups above is done.
+
+---
+
 ## Run it — option A: locally, without Docker (recommended for teaching)
 
 Only the vector database runs in a container; the API runs on your machine, where it can
@@ -31,6 +101,9 @@ docker compose up qdrant -d        # just the vector DB
 uv sync                            # create .venv from uv.lock
 az login                           # what makes AZURE_AI_AUTH=identity work
 uv run uvicorn app.main:app --reload --port 7799
+
+# without uv, the same thing:
+#   .\.venv\Scripts\Activate.ps1 && uvicorn app.main:app --reload --port 7799
 ```
 
 Add the console in a second terminal:
@@ -52,9 +125,41 @@ docker compose up --build
 #   :7800 console · :7799/docs Swagger · :7833/dashboard Qdrant
 ```
 
-Self-contained and one command, but the API container authenticates with a **key** (a
-container cannot see your `az login`), so the Agent Service and the control plane are
-unavailable there. The console reports that honestly rather than showing an empty list.
+Self-contained and one command. By default the API container authenticates with a
+**key**, because it cannot borrow your `az login` — and keys are enough for chat and
+embeddings but *not* for the Agent Service or the control plane, which require
+Microsoft Entra. The console reports that honestly rather than showing an empty list.
+
+### Identity inside a container
+
+That default is a convenience, not a limit — a container can absolutely hold an Entra
+identity. Give it a **service principal**: an application identity with its own id and
+secret, which `DefaultAzureCredential` picks up from the environment *before* it ever
+looks for the Azure CLI.
+
+```bash
+# create one, scoped to your Foundry resource only
+RES=$(az cognitiveservices account show --name <resource> --resource-group <rg> --query id -o tsv)
+az ad sp create-for-rbac --name sp-libra-console --role "Azure AI User" --scopes "$RES"
+```
+
+Paste the three values it prints into `.env` and flip the compose override:
+
+```ini
+DOCKER_AZURE_AI_AUTH=identity
+AZURE_CLIENT_ID=<appId>
+AZURE_CLIENT_SECRET=<password>
+AZURE_TENANT_ID=<tenant>
+```
+
+`docker compose up -d` and the container now has a real identity: hosted agents,
+deployments and the Agent Service all work inside Docker. Treat the secret like any
+other — it lives in the git-ignored `.env`, and it expires, so rotate it.
+
+**In production you would use neither.** A container running in Azure gets a *managed
+identity* — same `DefaultAzureCredential`, same code, no secret to store or rotate at
+all. The three lanes, in order of preference: managed identity → service principal →
+key.
 
 The app container overrides `QDRANT_URL` automatically and bind-mounts `./app`,
 so **live reload works inside the container too** — edit a file, watch it restart.
@@ -63,6 +168,43 @@ so either use `AZURE_AI_AUTH=key` there, or run the API locally (option A) for t
 identity lane.
 
 Qdrant has a visual dashboard: http://localhost:7833/dashboard — great on a shared screen.
+
+## Run it — option C: API on the host, everything else in Docker
+
+Option A's identity lane without needing Node installed: the API — the only part that
+wants your `az login` — runs on your machine, while Qdrant and the console stay in
+containers.
+
+```bash
+# terminal 1 — the API, on your machine
+az login
+uv run uvicorn app.main:app --reload --port 7799
+
+# terminal 2
+docker compose -f docker-compose.yml -f docker-compose.host-api.yml up
+```
+
+The override file swaps the console's proxy target to `host.docker.internal` and leaves
+the `api` service out, so it does not fight your local uvicorn for port 7799.
+
+`host.docker.internal` is how a container names the machine running Docker — its own
+`localhost` is just its own loopback. How much that costs you depends on which Docker
+you are running:
+
+| | Docker Desktop (Windows, macOS) | Docker Engine on Linux |
+|---|---|---|
+| The name | built in, no configuration | created by `extra_hosts: ["host.docker.internal:host-gateway"]` — already set on the console service, the compose form of `--add-host` |
+| Points at | the host's loopback | the bridge gateway, a real network interface |
+| uvicorn bind | the default `127.0.0.1` is reachable | must add `--host 0.0.0.0`, otherwise the connection is refused |
+
+So the commands above are complete on Docker Desktop. On Linux, add
+`--host 0.0.0.0` — which also publishes the API to your local network.
+
+When it does fail, split the problem: `curl http://localhost:7799/health` on the host
+proves uvicorn is up, and
+`docker compose exec console wget -qO- http://host.docker.internal:7799/health` proves
+the container can reach it. A hang instead of a refusal is usually Windows Defender
+Firewall dropping the inbound connection to `python.exe`.
 
 ## The demo, in order
 
