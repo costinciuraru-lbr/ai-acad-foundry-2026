@@ -5,7 +5,7 @@ from typing import Literal, Optional  # noqa: F401  (Literal used by AskRequest)
 
 from pydantic import BaseModel, Field
 
-Strategy = Literal["static", "dynamic", "sentence", "semantic"]
+Strategy = Literal["static", "dynamic", "sentence", "semantic", "heading"]
 
 
 # --- chunking -----------------------------------------------------------------
@@ -52,6 +52,13 @@ class IngestRequest(ChunkRequest):
     }]}}
 
     source: Optional[str] = Field(None, description="Label stored with every chunk (e.g. 'cards-faq')")
+    metadata: Optional[dict] = Field(
+        None,
+        description="Document-level fields stored on every chunk's payload — e.g. "
+                    "{'title': ..., 'product': ..., 'audience': ..., 'effective': ..., "
+                    "'version': ...}. Also drives the 'heading' strategy's chunk-context prefix "
+                    "('title' key) and re-ingestion of the same source replaces its old chunks.",
+    )
 
 
 class IngestResponse(BaseModel):
@@ -62,6 +69,7 @@ class IngestResponse(BaseModel):
     embedding_model: dict
     point_ids: list[str]
     chunks: list[ChunkInfo]
+    replaced: int = Field(0, description="Stale chunks from a previous ingest of this source that were removed")
 
 
 # --- retrieval ----------------------------------------------------------------
@@ -73,6 +81,18 @@ class SearchRequest(BaseModel):
 
     query: str = Field(..., min_length=1)
     top_k: Optional[int] = Field(None, ge=1, le=50)
+    min_score: Optional[float] = Field(
+        None, ge=0, le=1,
+        description="Drop hits below this cosine similarity — weak matches become "
+                    "'nothing relevant found' instead of a confident wrong answer.",
+    )
+    filters: Optional[dict[str, str]] = Field(
+        None,
+        description="Exact-match payload filters, e.g. {'product': 'deposits', "
+                    "'source': 'notice-period-policy-v2'} — keeps a superseded document's "
+                    "chunks from competing with the current one.",
+    )
+    dedupe: bool = Field(True, description="Drop near-duplicate hits (same source+index, or near-identical text)")
 
 
 class SearchHit(BaseModel):
@@ -82,6 +102,7 @@ class SearchHit(BaseModel):
     strategy: Optional[str] = None
     source: Optional[str] = None
     id: str
+    metadata: dict = Field(default_factory=dict, description="Document-level fields from ingest (title, product, effective, version, ...)")
 
 
 class SearchResponse(BaseModel):
@@ -90,6 +111,7 @@ class SearchResponse(BaseModel):
     embedding_model: dict
     query_embedding_preview: list[float]
     hits: list[SearchHit]
+    dropped_below_threshold: int = Field(0, description="Hits that scored below min_score and were removed")
 
 
 # --- generation ---------------------------------------------------------------
@@ -112,6 +134,12 @@ class AskRequest(BaseModel):
     )
     agent_mode: Optional[Literal["local", "foundry"]] = Field(
         None, description="local = the loop runs here; foundry = the hosted Agent Service"
+    )
+    min_score: Optional[float] = Field(
+        None, ge=0, le=1, description="Same as /search — drop retrieved chunks below this score"
+    )
+    filters: Optional[dict[str, str]] = Field(
+        None, description="Same as /search — exact-match payload filters, e.g. {'source': 'fee-schedule'}"
     )
 
 
@@ -221,6 +249,7 @@ class AskResponse(BaseModel):
     system_prompt: str = Field(description="The system message actually sent")
     prompt_sent: str = Field(description="The exact user prompt sent to the model — compare with/without RAG")
     retrieved: list[SearchHit] = Field(default_factory=list)
+    dropped_below_threshold: int = Field(0, description="Retrieved hits removed by min_score before the model saw them")
     usage: Optional[Usage] = None
 
 

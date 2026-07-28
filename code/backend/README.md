@@ -1,7 +1,7 @@
 # RAG Teaching API
 
 A backend built to *show* Retrieval-Augmented Generation, endpoint by endpoint:
-chunk text with four selectable strategies, embed and store in **Qdrant**, retrieve
+chunk text with five selectable strategies, embed and store in **Qdrant**, retrieve
 with visible **similarity scores**, and answer questions **with or without
 augmentation** — every response exposes the pipeline's intermediate artifacts,
 including the exact final prompt sent to the model.
@@ -211,7 +211,7 @@ Firewall dropping the inbound connection to `python.exe`.
 | Step | Call | What to look at |
 |---|---|---|
 | 1 | `GET /health` | Everything green, which providers are active |
-| 2 | `POST /chunk` ×4 strategies | Same text, different boundaries — static cuts mid-sentence, semantic follows meaning |
+| 2 | `POST /chunk` ×5 strategies | Same text, different boundaries — static cuts mid-sentence, semantic follows meaning |
 | 3 | `POST /ingest` | Chunks became vectors: dimension, first 8 numbers of an embedding |
 | 4 | `GET /collection` | What Qdrant now holds |
 | 5 | `POST /search` | Paraphrased query still finds the right chunk — cosine scores, descending |
@@ -252,6 +252,22 @@ uv run python scripts/invoke_agent.py "What fee applies to early repayment?" --p
 API keys are **not accepted** by the Agent Service — it is Entra-only. Set
 `AZURE_AI_AUTH=identity` and `az login` for that lane.
 
+## Loading a document corpus
+
+`scripts/load_corpus.py` walks a `data/` directory (repo root by default), reads each
+Markdown file's `---` frontmatter (`title`, `product`, `audience`, `effective`, `version`)
+into ingest metadata, and posts every document to `/ingest` in one command — the "write a
+loader" step in Assignment 3, Part 4.
+
+```bash
+uv run python scripts/load_corpus.py                          # heading strategy, default API
+uv run python scripts/load_corpus.py --strategy dynamic --chunk-size 400
+```
+
+Re-running it is safe: `source` (the filename stem) drives a stable, content-derived point
+id in Qdrant, so re-ingesting a document replaces its old chunks instead of duplicating them
+(`app/vectorstore.py::stable_id`).
+
 ## Tools (specialist services)
 
 ```bash
@@ -267,7 +283,9 @@ formats). That list is the argument for managed grounding.
 Chunking strategies (`strategy` in the request body): `static` (fixed windows),
 `sentence` (N sentences per chunk), `dynamic` (paragraph/sentence-aware packing with
 overlap), `semantic` (sentence embeddings; new chunk where adjacent cosine similarity
-drops below `semantic_threshold` — needs the embedding provider configured).
+drops below `semantic_threshold` — needs the embedding provider configured), `heading`
+(splits on Markdown `#`/`##` lines, never cuts a table row or list item across two chunks,
+and prefixes each chunk with its document title and section heading).
 
 ## Choosing providers
 

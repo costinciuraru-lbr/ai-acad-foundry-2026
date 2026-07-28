@@ -1,6 +1,6 @@
 """Chunking strategies — the first decision of every RAG pipeline, made visible.
 
-Four strategies, deliberately spanning the sophistication spectrum:
+Five strategies, deliberately spanning the sophistication spectrum:
 
   static    fixed character windows; cheap, ignores meaning (splits mid-sentence)
   sentence  groups of N sentences; trivially readable boundaries
@@ -8,6 +8,11 @@ Four strategies, deliberately spanning the sophistication spectrum:
             budget with overlap; never cuts inside a sentence unless forced
   semantic  sentence embeddings; a new chunk starts where adjacent cosine
             similarity drops below a threshold — meaning-aware, costs embeddings
+  heading   Markdown-structure aware: splits on '#' headings first, then packs
+            paragraphs/tables/lists inside each section — a table row or a
+            numbered-list item is never split across two chunks — and prefixes
+            every chunk with "<document title> — <heading>" so a chunk retrieved
+            on its own still carries the noun it refers to (see build_context_prefix)
 """
 from __future__ import annotations
 
@@ -17,6 +22,9 @@ from typing import Callable
 
 SENTENCE_END = re.compile(r"(?<=[.!?…])\s+")
 PARAGRAPH_SPLIT = re.compile(r"\n\s*\n")
+HEADING_LINE = re.compile(r"^(#{1,6})\s+(.*)$")
+TABLE_ROW = re.compile(r"^\s*\|.*\|\s*$")
+LIST_ITEM = re.compile(r"^\s*(?:\d+[.)]|[-*])\s+")
 
 EmbedFn = Callable[[list[str]], list[list[float]]]
 
@@ -110,9 +118,89 @@ def chunk_semantic(text: str, threshold: float, embed_fn: EmbedFn) -> list[str]:
     return [" ".join(c) for c in chunks]
 
 
+def build_context_prefix(title: str | None, heading: str | None) -> str:
+    """'<title> — <heading>' — what makes a chunk self-describing once it is
+    retrieved on its own, away from the document it came from."""
+    parts = [p for p in (title, heading) if p]
+    return " — ".join(parts)
+
+
+def _sections(text: str) -> list[tuple[str, str]]:
+    """(heading, body) pairs, split on Markdown '#' lines. Body before the
+    first heading is kept under heading ''."""
+    sections: list[tuple[str, list[str]]] = [("", [])]
+    for line in text.split("\n"):
+        m = HEADING_LINE.match(line)
+        if m:
+            sections.append((m.group(2).strip(), []))
+        else:
+            sections[-1][1].append(line)
+    return [(h, "\n".join(b).strip()) for h, b in sections if "\n".join(b).strip()]
+
+
+def _atomic_blocks(body: str) -> list[str]:
+    """Split a section body on blank lines, EXCEPT a run of table rows or a
+    run of list items is kept as one block even though naive chunking would
+    cut straight through it."""
+    blocks: list[str] = []
+    current: list[str] = []
+    kind: str | None = None
+
+    def flush() -> None:
+        if current:
+            blocks.append("\n".join(current).strip())
+        current.clear()
+
+    for line in body.split("\n"):
+        if not line.strip():
+            flush()
+            kind = None
+            continue
+        if TABLE_ROW.match(line):
+            new_kind = "table"
+        elif LIST_ITEM.match(line) or kind == "list":
+            new_kind = "list"
+        else:
+            new_kind = "text"
+        if new_kind != kind:
+            flush()
+        kind = new_kind
+        current.append(line)
+    flush()
+    return [b for b in blocks if b]
+
+
+def chunk_heading(text: str, title: str | None, size: int) -> list[str]:
+    """Split on Markdown headings, then pack each section's blocks (paragraphs,
+    whole tables, whole lists) up to `size` characters. A block bigger than
+    `size` is kept whole rather than cut — losing a table row is worse than a
+    chunk running long. Every chunk is prefixed with its document/section
+    context so it still makes sense once retrieved on its own."""
+    chunks: list[str] = []
+    for heading, body in _sections(text):
+        prefix = build_context_prefix(title, heading)
+        current: list[str] = []
+        current_len = 0
+
+        def flush() -> None:
+            nonlocal current, current_len
+            if current:
+                body_text = "\n\n".join(current)
+                chunks.append(f"{prefix}\n\n{body_text}" if prefix else body_text)
+            current, current_len = [], 0
+
+        for block in _atomic_blocks(body):
+            if current and current_len + len(block) + 2 > size:
+                flush()
+            current.append(block)
+            current_len += len(block) + 2
+        flush()
+    return chunks
+
+
 # --- dispatcher ---------------------------------------------------------------
 
-STRATEGIES = ("static", "dynamic", "sentence", "semantic")
+STRATEGIES = ("static", "dynamic", "sentence", "semantic", "heading")
 
 
 def chunk(
@@ -124,6 +212,7 @@ def chunk(
     per_chunk: int,
     threshold: float,
     embed_fn: EmbedFn | None = None,
+    title: str | None = None,
 ) -> list[str]:
     text = text.strip()
     if not text:
@@ -138,4 +227,6 @@ def chunk(
         if embed_fn is None:
             raise ValueError("semantic chunking requires an embedding function")
         return chunk_semantic(text, threshold, embed_fn)
+    if strategy == "heading":
+        return chunk_heading(text, title, size)
     raise ValueError(f"unknown strategy '{strategy}' — expected one of {STRATEGIES}")

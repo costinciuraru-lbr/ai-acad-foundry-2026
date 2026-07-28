@@ -7,7 +7,7 @@ the pipeline, each able to reveal its own raw JSON.
 | Screen | Shows | Endpoints |
 |---|---|---|
 | **Chat** | The assistant: persona switch, RAG toggle, local/Foundry lane, retrieved passages with scores, and the exact prompt sent | `/ask` |
-| **Knowledge** | Paste a document, compare the four chunking strategies, then embed and store | `/chunk`, `/ingest`, `/collection` |
+| **Knowledge** | Paste a document, compare the five chunking strategies, tag it with metadata, then embed and store | `/chunk`, `/ingest`, `/collection` |
 | **Retrieval** | A query, its embedding, and the ranked hits with cosine scores | `/search` |
 | **Agents** | Every agent and **where it can run**, the system prompt its JSON produces, deploy/remove in Foundry | `/agents`, `/agents/{name}/deploy`, `/agents/hosted` |
 | **Tools** | The plain web scraper with its warnings; text-to-speech; speech-to-text | `/tools/*` |

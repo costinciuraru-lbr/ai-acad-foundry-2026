@@ -30,13 +30,23 @@ class AgentReply:
     completion_tokens: int | None = None
 
 
-def build_user_prompt(question: str, chunks: list[dict]) -> str:
-    """Question alone, or question + retrieved passages."""
-    if not chunks:
+def build_user_prompt(question: str, chunks: list[dict] | None) -> str:
+    """Question alone (RAG off), or question + retrieved passages (RAG on).
+
+    `chunks is None` means retrieval was never attempted (use_rag=false). An
+    empty list means retrieval WAS attempted and found nothing worth keeping
+    (e.g. everything fell below the score threshold) — that must still say so
+    explicitly, or the model silently answers from its own knowledge with no
+    signal that grounding was expected. See vectorstore.search's min_score.
+    """
+    if chunks is None:
         return question
-    context = "\n\n".join(
-        f"[{i + 1}] (score {c['score']}) {c['text']}" for i, c in enumerate(chunks)
-    )
+    if not chunks:
+        context = "(no passage met the retrieval criteria for this question)"
+    else:
+        context = "\n\n".join(
+            f"[{i + 1}] (score {c['score']}) {c['text']}" for i, c in enumerate(chunks)
+        )
     return (
         "CONTEXT — retrieved passages, most similar first:\n"
         f"{context}\n\n"
@@ -51,8 +61,9 @@ def run(
     chunks: list[dict] | None = None,
     temperature: float | None = None,
 ) -> AgentReply:
-    chunks = chunks or []
-    system = persona.system_prompt(grounded=bool(chunks))
+    # None = RAG off entirely; [] = RAG on, retrieval just found nothing to keep.
+    # Both need to be told apart from "RAG on with hits" — see build_user_prompt.
+    system = persona.system_prompt(grounded=chunks is not None)
     user = build_user_prompt(question, chunks)
 
     # precedence: explicit request value > persona file > .env default

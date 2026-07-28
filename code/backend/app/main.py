@@ -53,7 +53,7 @@ def _chunk_params(req: ChunkRequest) -> dict:
     }
 
 
-def _do_chunk(req: ChunkRequest) -> tuple[list[str], dict]:
+def _do_chunk(req: ChunkRequest, title: str | None = None) -> tuple[list[str], dict]:
     p = _chunk_params(req)
     embed_fn = None
     if p["strategy"] == "semantic":
@@ -62,6 +62,7 @@ def _do_chunk(req: ChunkRequest) -> tuple[list[str], dict]:
         pieces = chunking.chunk(
             req.text, p["strategy"], size=p["size"], overlap=p["overlap"],
             per_chunk=p["per_chunk"], threshold=p["threshold"], embed_fn=embed_fn,
+            title=title,
         )
     except ValueError as e:
         raise HTTPException(status_code=422, detail=str(e))
@@ -260,7 +261,8 @@ def ingest(req: IngestRequest) -> IngestResponse:
     """Chunk -> embed -> store in Qdrant. The response shows the chunks, the
     vector dimension, and a peek at the first embedding."""
     _require_qdrant()
-    pieces, p = _do_chunk(req)
+    title = (req.metadata or {}).get("title") or req.source
+    pieces, p = _do_chunk(req, title=title)
     if not pieces:
         raise HTTPException(status_code=422, detail="No chunks produced — is the text empty?")
     vectors = _embed(pieces)
@@ -269,11 +271,12 @@ def ingest(req: IngestRequest) -> IngestResponse:
         store.ensure_collection(dim)
     except DimensionMismatch as e:
         raise HTTPException(status_code=409, detail=str(e))
-    ids = store.upsert(pieces, vectors, p["strategy"], req.source)
+    ids, replaced = store.upsert(pieces, vectors, p["strategy"], req.source, metadata=req.metadata)
     return IngestResponse(
         strategy=p["strategy"], count=len(pieces), vector_dimension=dim,
         embedding_preview=[round(x, 5) for x in vectors[0][:8]],
         embedding_model=_embedder().describe(), point_ids=ids, chunks=_chunk_infos(pieces),
+        replaced=replaced,
     )
 
 
@@ -300,11 +303,11 @@ def search(req: SearchRequest) -> SearchResponse:
         raise HTTPException(status_code=404, detail="Collection is empty — POST /ingest first.")
     top_k = req.top_k or settings.top_k
     qvec = _embed([req.query])[0]
-    hits = store.search(qvec, top_k)
+    hits, dropped = store.search(qvec, top_k, min_score=req.min_score, filters=req.filters, dedupe=req.dedupe)
     return SearchResponse(
         query=req.query, top_k=top_k, embedding_model=_embedder().describe(),
         query_embedding_preview=[round(x, 5) for x in qvec[:8]],
-        hits=[SearchHit(**h) for h in hits],
+        hits=[SearchHit(**h) for h in hits], dropped_below_threshold=dropped,
     )
 
 
@@ -321,6 +324,7 @@ def ask(req: AskRequest) -> AskResponse:
     `system_prompt` and `prompt_sent` always show exactly what went to the model.
     """
     retrieved: list[SearchHit] = []
+    dropped_below_threshold = 0
 
     # ---- which persona, and does it need to be local? ------------------------
     persona_name = req.agent or settings.agent_persona
@@ -350,9 +354,14 @@ def ask(req: AskRequest) -> AskResponse:
                                        "or set use_rag=false for a plain LLM answer.")
         top_k = req.top_k or settings.top_k
         qvec = _embed([req.question])[0]
-        retrieved = [SearchHit(**h) for h in store.search(qvec, top_k)]
+        hits, dropped_below_threshold = store.search(
+            qvec, top_k, min_score=req.min_score, filters=req.filters,
+        )
+        retrieved = [SearchHit(**h) for h in hits]
 
-    chunks = [h.model_dump() for h in retrieved]
+    # None = RAG off entirely; [] = RAG on, nothing survived retrieval — the
+    # agent must tell those apart (see local_agent.build_user_prompt).
+    chunks = [h.model_dump() for h in retrieved] if req.use_rag else None
     mode = mode_requested
 
     # ---- run the agent ------------------------------------------------------
@@ -388,6 +397,7 @@ def ask(req: AskRequest) -> AskResponse:
         system_prompt=reply.system_prompt,
         prompt_sent=reply.prompt_sent,
         retrieved=retrieved,
+        dropped_below_threshold=dropped_below_threshold,
         usage=Usage(prompt_tokens=reply.prompt_tokens, completion_tokens=reply.completion_tokens),
     )
 

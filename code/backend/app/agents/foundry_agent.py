@@ -194,16 +194,16 @@ def run(
             f"Deploy it first — POST /agents/{persona.name}/deploy, or "
             f"`python scripts/deploy_agent.py {persona.name}`."
         )
-    return _run_thread(agent_id, persona.name, question, chunks or [])
+    return _run_thread(agent_id, persona.name, question, chunks)
 
 
 def run_hosted(agent: dict, question: str, chunks: list[dict] | None = None) -> AgentReply:
     """Invoke a hosted agent that has no local persona file — its instructions
     live in Foundry, so there is nothing to compose on our side."""
-    return _run_thread(agent["agent_id"], agent["name"], question, chunks or [])
+    return _run_thread(agent["agent_id"], agent["name"], question, chunks)
 
 
-def _run_thread(agent_id: str, persona_name: str, question: str, chunks: list[dict]) -> AgentReply:
+def _run_thread(agent_id: str, persona_name: str, question: str, chunks: list[dict] | None) -> AgentReply:
     """The Agent Service protocol, in four calls."""
     user = build_user_prompt(question, chunks)
 
