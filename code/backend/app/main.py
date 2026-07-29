@@ -124,8 +124,10 @@ def health() -> Health:
                 "default_persona": settings.agent_persona,
                 "available": available_names(),
                 "foundry_agent_id": settings.foundry_agent_id or None},
-        speech={"configured": bool(settings.azure_speech_key and settings.azure_speech_region),
+        speech={"configured": bool(settings.azure_speech_key and
+                                    (settings.azure_speech_region or settings.azure_speech_endpoint)),
                 "region": settings.azure_speech_region or None,
+                "endpoint": settings.azure_speech_endpoint or None,
                 "voice": settings.azure_speech_voice},
     )
 

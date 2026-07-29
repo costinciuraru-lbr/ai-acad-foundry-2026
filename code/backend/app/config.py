@@ -37,7 +37,8 @@ class Settings(BaseSettings):
 
     # --- Azure AI Speech (a SEPARATE resource from Foundry) -------------------
     azure_speech_key: str = ""
-    azure_speech_region: str = ""           # e.g. swedencentral
+    azure_speech_region: str = ""           # e.g. swedencentral (used if no custom endpoint)
+    azure_speech_endpoint: str = ""         # custom-domain host, e.g. https://<resource>.cognitiveservices.azure.com
     azure_speech_voice: str = "en-US-AvaMultilingualNeural"
     azure_speech_language: str = "en-US"
 

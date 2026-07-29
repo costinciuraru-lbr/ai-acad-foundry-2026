@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { api } from '../api'
-import { Err, RunsOnBadge } from '../components'
+import { Err } from '../components'
+import { MicRecorder } from '../micRecorder'
+import {
+  deleteChat, deriveTitle, exportChat, listChats, makeChat,
+  parseImportedChat, saveChat, stripAudioForSave,
+} from '../chatStore'
 
 // The backend is stateless — /ask sees one question at a time, no thread. A follow-up
 // like "and if I wait longer?" only makes sense to the model if we fold the last few
@@ -16,25 +21,126 @@ function withHistory(history, question) {
   return `Previous conversation:\n${transcript}\n\nUser: ${question}`
 }
 
-export default function Chat({ agents, hostedOnly = [], foundry }) {
-  const [messages, setMessages] = useState([])
-  const [history, setHistory] = useState([])          // [{q, a}] — for multi-turn context
+// Every browser tab needs at least one chat to land on — reuse what's saved,
+// or start the very first one.
+function bootstrapChats() {
+  const existing = listChats()
+  if (existing.length) return existing
+  const fresh = makeChat()
+  saveChat(fresh)
+  return [fresh]
+}
+
+// agent/useRag/useHistory/mode/topK/minScore/sourceFilter now live in App.jsx and are
+// configured from the Settings view — Chat only reads them to build each /ask request.
+export default function Chat({
+  agents, hostedOnly = [], foundry,
+  agent, useRag, useHistory, mode, topK, minScore, sourceFilter,
+}) {
+  const [chats, setChats] = useState(bootstrapChats)
+  const [chatId, setChatId] = useState(() => chats[0].id)
+  const [messages, setMessages] = useState(() => chats[0].messages)
+  const [history, setHistory] = useState(() => chats[0].history)   // [{q, a}] — for multi-turn context
   const [question, setQuestion] = useState('')
-  const [agent, setAgent] = useState('default')
-  const [useRag, setUseRag] = useState(true)
-  const [useHistory, setUseHistory] = useState(true)
-  const [mode, setMode] = useState('local')
-  const [topK, setTopK] = useState(3)
-  const [minScore, setMinScore] = useState('')
-  const [sourceFilter, setSourceFilter] = useState('')
+  const [voiceMode, setVoiceMode] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
+  const [recording, setRecording] = useState(false)
+  const [transcribing, setTranscribing] = useState(false)
   const endRef = useRef(null)
+  const recorderRef = useRef(null)
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages, busy])
+  useEffect(() => () => recorderRef.current?.stop(), [])   // release the mic if the view unmounts mid-recording
 
-  async function send() {
-    const text = question.trim()
+  // Autosave: every change to the active chat's messages/history is persisted
+  // immediately, keyed by whichever chatId is current at the time.
+  useEffect(() => {
+    setChats((prev) => {
+      const current = prev.find((c) => c.id === chatId)
+      const savedMessages = messages.map(stripAudioForSave)
+      const updated = {
+        id: chatId,
+        title: deriveTitle(current?.title, savedMessages),
+        createdAt: current?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        messages: savedMessages,
+        history,
+      }
+      saveChat(updated)
+      return prev.map((c) => (c.id === chatId ? updated : c))
+    })
+  }, [messages, history, chatId])
+
+  function startNewChat() {
+    const fresh = makeChat()
+    saveChat(fresh)
+    setChats((prev) => [fresh, ...prev])
+    setChatId(fresh.id)
+    setMessages([]); setHistory([]); setQuestion(''); setError(null)
+  }
+
+  function switchChat(id, list = chats) {
+    if (id === chatId) return
+    const target = list.find((c) => c.id === id)
+    if (!target) return
+    setChatId(id)
+    setMessages(target.messages); setHistory(target.history)
+    setQuestion(''); setError(null)
+  }
+
+  function removeChat(id, e) {
+    e.stopPropagation()
+    deleteChat(id)
+    const next = chats.filter((c) => c.id !== id)
+    setChats(next)
+    if (id === chatId) { if (next.length) switchChat(next[0].id, next); else startNewChat() }
+  }
+
+  function handleExport(id, e) {
+    e.stopPropagation()
+    const chat = chats.find((c) => c.id === id)
+    if (chat) exportChat(chat)
+  }
+
+  async function handleImport(e) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    try {
+      const text = await file.text()
+      const imported = parseImportedChat(text, new Set(chats.map((c) => c.id)))
+      saveChat(imported)
+      const next = [imported, ...chats]
+      setChats(next)
+      switchChat(imported.id, next)
+    } catch (e2) { setError(`Could not import that file (${e2.message}).`) }
+  }
+
+  async function toggleRecording() {
+    if (recording) {
+      setRecording(false)
+      setTranscribing(true)
+      try {
+        const blob = recorderRef.current.stop()
+        recorderRef.current = null
+        const file = new File([blob], 'question.wav', { type: 'audio/wav' })
+        const result = await api.transcribe(file)
+        if (result.text?.trim()) await send(result.text)
+        else setError('Could not make out any speech in that recording — try again.')
+      } catch (e) { setError(e.message) } finally { setTranscribing(false) }
+    } else {
+      setError(null)
+      try {
+        recorderRef.current = new MicRecorder()
+        await recorderRef.current.start()
+        setRecording(true)
+      } catch (e) { setError(`Microphone access failed: ${e.message}`) }
+    }
+  }
+
+  async function send(overrideText) {
+    const text = (overrideText ?? question).trim()
     if (!text || busy) return
     setQuestion(''); setError(null); setBusy(true)
     setMessages((m) => [...m, { role: 'user', text }])
@@ -45,7 +151,16 @@ export default function Chat({ agents, hostedOnly = [], foundry }) {
         min_score: minScore !== '' ? Number(minScore) : undefined,
         filters: sourceFilter.trim() ? { source: sourceFilter.trim() } : undefined,
       })
-      setMessages((m) => [...m, { role: 'bot', data }])
+      const botMsg = { role: 'bot', data }
+      if (voiceMode) {
+        try {
+          const blob = await api.speak({ text: data.answer })
+          botMsg.audio = { url: URL.createObjectURL(blob), size: blob.size }
+        } catch (e) {
+          botMsg.voiceError = e.message   // fall back to text, don't lose the answer
+        }
+      }
+      setMessages((m) => [...m, botMsg])
       setHistory((h) => [...h, { q: text, a: data.answer }])
     } catch (e) {
       setMessages((m) => [...m, { role: 'err', text: e.message }])
@@ -53,65 +168,44 @@ export default function Chat({ agents, hostedOnly = [], foundry }) {
     } finally { setBusy(false) }
   }
 
-  const all = [...agents, ...hostedOnly]
-  const current = all.find((a) => a.name === agent)
-
-  // Where this agent CAN run decides which lanes are offered.
-  const hostedKnown = foundry?.available
-  const isHosted = current?.runs_on === 'both' || current?.runs_on === 'foundry'
-  const localImpossible = current?.runs_on === 'foundry'      // no JSON file to run here
-  const foundryBlocked = hostedKnown && !isHosted             // definitely not deployed
-
-  // Keep the mode legal whenever the selected agent changes.
-  useEffect(() => {
-    if (localImpossible && mode !== 'foundry') setMode('foundry')
-    else if (foundryBlocked && mode === 'foundry') setMode('local')
-  }, [agent, localImpossible, foundryBlocked])   // eslint-disable-line react-hooks/exhaustive-deps
+  // Read-only, just for the orientation badge below — the disabled/legality logic
+  // for these lives in the Settings view now, next to the controls that need it.
+  const current = [...agents, ...hostedOnly].find((a) => a.name === agent)
 
   return (
+    <div className="chat-shell">
+      <aside className="chat-log">
+        <button className="btn btn-outline btn-sm" style={{ width: '100%' }} onClick={startNewChat}>+ New chat</button>
+        <div className="chat-log-list">
+          {chats.map((c) => (
+            <div key={c.id} className={`chat-log-item ${c.id === chatId ? 'active' : ''}`}
+                 onClick={() => switchChat(c.id)} title={c.title}>
+              <span className="chat-log-title">{c.title}</span>
+              <span className="chat-log-actions">
+                <button className="icon-btn" title="Export as .json" onClick={(e) => handleExport(c.id, e)}>⬇</button>
+                <button className="icon-btn" title="Delete" onClick={(e) => removeChat(c.id, e)}>🗑</button>
+              </span>
+            </div>
+          ))}
+        </div>
+        <label className="btn btn-outline btn-sm"
+               style={{ width: '100%', textTransform: 'none', letterSpacing: 0, margin: 0, padding: '.3em .7em' }}>
+          Import .json
+          <input type="file" accept="application/json" style={{ display: 'none' }} onChange={handleImport} />
+        </label>
+      </aside>
     <div className="chat-wrap">
       <div className="chat-bar">
-        <select value={agent} onChange={(e) => setAgent(e.target.value)} title="Which persona answers">
-          {agents.map((a) => <option key={a.name} value={a.name}>{a.display_name}</option>)}
-          {hostedOnly.length > 0 && (
-            <optgroup label="hosted in Foundry only">
-              {hostedOnly.map((a) => <option key={a.name} value={a.name}>{a.display_name}</option>)}
-            </optgroup>
-          )}
-        </select>
-        {current && <RunsOnBadge runsOn={current.runs_on} reason={foundry?.reason} />}
-        <label className="check" style={{ margin: 0 }}>
-          <input type="checkbox" checked={useRag} onChange={(e) => setUseRag(e.target.checked)} />
-          use RAG
-        </label>
-        <select value={mode} onChange={(e) => setMode(e.target.value)} style={{ minWidth: '9rem' }}
-                title="Where the loop executes">
-          <option value="local" disabled={localImpossible}
-                  title={localImpossible ? 'This agent has no local JSON file' : ''}>
-            local agent
-          </option>
-          <option value="foundry" disabled={foundryBlocked}
-                  title={foundryBlocked ? 'Not deployed to Foundry — deploy it from the Agents view' : ''}>
-            Foundry agent{foundryBlocked ? ' — not deployed' : ''}
-          </option>
-        </select>
-        <input type="number" min="1" max="10" value={topK} onChange={(e) => setTopK(e.target.value)}
-               style={{ width: '4.5rem', flex: '0 0 auto' }} title="Passages to retrieve" />
-        <label className="check" style={{ margin: 0 }} title="Fold the last few turns into the question so follow-ups make sense">
-          <input type="checkbox" checked={useHistory} onChange={(e) => setUseHistory(e.target.checked)} />
-          history
+        {current && (
+          <span className="badge muted" title={`${current.description} — change persona, RAG, mode etc. in Settings`}>
+            {current.display_name} · {mode}{useRag ? '' : ' · no RAG'}
+          </span>
+        )}
+        <label className="check" style={{ margin: 0 }} title="Speak replies out loud (Azure AI Speech) instead of showing plain text">
+          <input type="checkbox" checked={voiceMode} onChange={(e) => setVoiceMode(e.target.checked)} />
+          🔊 voice replies
         </label>
         <button className="btn btn-outline btn-sm" onClick={() => { setMessages([]); setHistory([]) }}>clear</button>
-        {current && <span className="badge muted" title={current.description}>temp {current.temperature ?? '—'}</span>}
-      </div>
-      <div className="chat-bar" style={{ marginTop: '.4rem' }}>
-        <div style={{ maxWidth: '9rem' }}>
-          <input type="number" step="0.05" min="0" max="1" placeholder="min score: off" value={minScore}
-                 onChange={(e) => setMinScore(e.target.value)} title="Drop retrieved passages below this cosine similarity" />
-        </div>
-        <input type="text" value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)}
-               placeholder="source filter, e.g. notice-period-policy-v2" style={{ minWidth: '16rem' }}
-               title="Exact match on the source field" />
       </div>
 
       <div className="msgs">
@@ -131,7 +225,29 @@ export default function Chat({ agents, hostedOnly = [], foundry }) {
           const d = m.data
           return (
             <div className="msg bot" key={i}>
-              {d.answer}
+              {m.audio ? (
+                <>
+                  <audio controls autoPlay src={m.audio.url} style={{ width: '100%' }} />
+                  <details className="sources" style={{ marginTop: '.5rem' }}>
+                    <summary>show transcript</summary>
+                    <p style={{ marginTop: '.5rem' }}>{d.answer}</p>
+                  </details>
+                </>
+              ) : (
+                <>
+                  {d.answer}
+                  {m.voiceError && (
+                    <p className="err" style={{ margin: '.5rem 0 0', fontSize: '.85rem' }}>
+                      Voice synthesis failed ({m.voiceError}) — showing text instead.
+                    </p>
+                  )}
+                  {m.hadAudio && (
+                    <p className="faint" style={{ margin: '.5rem 0 0' }}>
+                      🔊 originally answered as voice — audio isn't kept across reloads.
+                    </p>
+                  )}
+                </>
+              )}
               <div className="msg-meta">
                 <span className="badge">{d.agent?.display_name || 'agent'}</span>
                 <span className={`badge ${d.augmented ? 'gold' : 'muted'}`}>{d.augmented ? 'grounded' : 'no retrieval'}</span>
@@ -175,8 +291,13 @@ export default function Chat({ agents, hostedOnly = [], foundry }) {
         <textarea value={question} placeholder="Ask Libra Assist…  (Enter to send, Shift+Enter for a new line)"
                   onChange={(e) => setQuestion(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }} />
-        <button className="btn btn-primary" onClick={send} disabled={busy || !question.trim()}>Send</button>
+        <button className={`btn ${recording ? 'btn-primary' : 'btn-outline'} shrink`} onClick={toggleRecording}
+                disabled={busy || transcribing} title={recording ? 'Stop and send' : 'Record a spoken question'}>
+          {transcribing ? <span className="spin" /> : recording ? '⏹ stop' : '🎙️'}
+        </button>
+        <button className="btn btn-primary" onClick={() => send()} disabled={busy || recording || !question.trim()}>Send</button>
       </div>
+    </div>
     </div>
   )
 }
