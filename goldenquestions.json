@@ -1,0 +1,1495 @@
+{
+  "id": "30cc5878-3117-4372-8e22-b6c7b5eb4821",
+  "title": "What is the minimum amount to open a stand…",
+  "createdAt": "2026-07-30T07:31:41.718Z",
+  "updatedAt": "2026-07-30T12:03:56.595Z",
+  "messages": [
+    {
+      "role": "user",
+      "text": "What is the minimum amount to open a standard term deposit?"
+    },
+    {
+      "role": "bot",
+      "data": {
+        "answer": "Minimum opening amount for a standard term deposit is 1,000 RON (or the equivalent amount in EUR or USD) [1].",
+        "augmented": true,
+        "provider": "azure",
+        "model": "gpt-5-mini",
+        "agent": {
+          "name": "banccherul",
+          "display_name": "Banccherul",
+          "description": "The precise, professional banking assistant — the module's baseline behaviour.",
+          "mode": "local",
+          "temperature": 0.2,
+          "style_rules": [
+            "Answer in the same language as the user, precisely and professionally.",
+            "Two short paragraphs maximum unless asked for more.",
+            "If a question needs data you do not have, state exactly what is missing.",
+            "Never invent fees, rates, deadlines or policy details."
+          ]
+        },
+        "system_prompt": "You are Banccherul, the internal AI assistant of a retail bank. You help colleagues and customers with accurate, actionable answers about the bank's products, policies and procedures.\n\nStyle rules you must follow:\n- Answer in the same language as the user, precisely and professionally.\n- Two short paragraphs maximum unless asked for more.\n- If a question needs data you do not have, state exactly what is missing.\n- Never invent fees, rates, deadlines or policy details.\n\nYou are given CONTEXT passages retrieved from the bank's own documents. Base your answer on those passages. Cite the passages you use as [1], [2], … . If the passages do not contain what is needed, say so explicitly instead of inventing an answer.",
+        "prompt_sent": "CONTEXT — retrieved passages, most similar first:\n[1] (score 0.6609) Deposit Account Types — Standard term deposit\n\nAvailable in RON, EUR or USD. Minimum opening amount is 1,000 RON or the equivalent in\nEUR/USD. Terms available: 1, 3, 6, 12, 18 and 24 months. Open to any customer aged 18 or over\nwith an active current account at Libra Bank.\n\n[2] (score 0.6463) How to Open a Term Deposit — Step by Step\n\nThis is the full procedure for opening a standard term deposit, valid for the mobile app,\nonline banking and branch channels unless a step says otherwise.\n\n[3] (score 0.6232) How to Open a Term Deposit — Step by Step\n\nThe whole process takes under five minutes in the app for an existing customer, or about\nfifteen minutes in branch for a first-time depositor.\n\n[4] (score 0.5984) Deposit Account Types — Young Savers term deposit\n\nRON only, for customers aged 14 to 25. Minimum opening amount is 200 RON. Pays the same base\nrate as the standard 12-month term deposit plus a fixed 0.20 percentage point bonus. Requires\na parent or legal guardian as co-holder for customers under 18.\n\nQUESTION:\nWhat is the minimum amount to open a standard term deposit?",
+        "retrieved": [
+          {
+            "score": 0.6609,
+            "text": "Deposit Account Types — Standard term deposit\n\nAvailable in RON, EUR or USD. Minimum opening amount is 1,000 RON or the equivalent in\nEUR/USD. Terms available: 1, 3, 6, 12, 18 and 24 months. Open to any customer aged 18 or over\nwith an active current account at Libra Bank.",
+            "index": 1,
+            "strategy": "heading",
+            "source": "account-types",
+            "id": "c3dd8a03-92aa-53ca-8ecf-f219a6015a8b",
+            "metadata": {
+              "title": "Deposit Account Types",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.6463,
+            "text": "How to Open a Term Deposit — Step by Step\n\nThis is the full procedure for opening a standard term deposit, valid for the mobile app,\nonline banking and branch channels unless a step says otherwise.",
+            "index": 0,
+            "strategy": "heading",
+            "source": "opening-procedure",
+            "id": "c8d227f3-623c-5ef2-9ec6-6a8f43f96515",
+            "metadata": {
+              "title": "How to Open a Term Deposit — Step by Step",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.6232,
+            "text": "How to Open a Term Deposit — Step by Step\n\nThe whole process takes under five minutes in the app for an existing customer, or about\nfifteen minutes in branch for a first-time depositor.",
+            "index": 2,
+            "strategy": "heading",
+            "source": "opening-procedure",
+            "id": "504fe464-87a0-529f-8273-2e6cfa44eb2d",
+            "metadata": {
+              "title": "How to Open a Term Deposit — Step by Step",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.5984,
+            "text": "Deposit Account Types — Young Savers term deposit\n\nRON only, for customers aged 14 to 25. Minimum opening amount is 200 RON. Pays the same base\nrate as the standard 12-month term deposit plus a fixed 0.20 percentage point bonus. Requires\na parent or legal guardian as co-holder for customers under 18.",
+            "index": 2,
+            "strategy": "heading",
+            "source": "account-types",
+            "id": "990024ca-0f87-5bd1-b921-2e0f5ac80512",
+            "metadata": {
+              "title": "Deposit Account Types",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          }
+        ],
+        "dropped_below_threshold": 0,
+        "usage": {
+          "prompt_tokens": 457,
+          "completion_tokens": 358
+        }
+      }
+    },
+    {
+      "role": "user",
+      "text": "What fee applies if I withdraw from a term deposit before maturity?"
+    },
+    {
+      "role": "bot",
+      "data": {
+        "answer": "An administrative fee of 25 RON (or the equivalent of 5 EUR / 5 USD for foreign‑currency deposits) is deducted from the principal on early withdrawal, and all interest accrued since opening (or since the last renewal) is forfeited — the customer receives principal minus the fee [4].\n\nException: no fee or interest forfeiture applies if the withdrawal is due to the death of the account holder (verified by the estate) or a court order; these exceptions require a branch visit and cannot be processed through the mobile app or call centre [2].",
+        "augmented": true,
+        "provider": "azure",
+        "model": "gpt-5-mini",
+        "agent": {
+          "name": "banccherul",
+          "display_name": "Banccherul",
+          "description": "The precise, professional banking assistant — the module's baseline behaviour.",
+          "mode": "local",
+          "temperature": 0.2,
+          "style_rules": [
+            "Answer in the same language as the user, precisely and professionally.",
+            "Two short paragraphs maximum unless asked for more.",
+            "If a question needs data you do not have, state exactly what is missing.",
+            "Never invent fees, rates, deadlines or policy details."
+          ]
+        },
+        "system_prompt": "You are Banccherul, the internal AI assistant of a retail bank. You help colleagues and customers with accurate, actionable answers about the bank's products, policies and procedures.\n\nStyle rules you must follow:\n- Answer in the same language as the user, precisely and professionally.\n- Two short paragraphs maximum unless asked for more.\n- If a question needs data you do not have, state exactly what is missing.\n- Never invent fees, rates, deadlines or policy details.\n\nYou are given CONTEXT passages retrieved from the bank's own documents. Base your answer on those passages. Cite the passages you use as [1], [2], … . If the passages do not contain what is needed, say so explicitly instead of inventing an answer.",
+        "prompt_sent": "CONTEXT — retrieved passages, most similar first:\n[1] (score 0.6977) Early Withdrawal Policy\n\nBreaking a term deposit before its maturity date is allowed at any time, subject to the\nfollowing:\n\n[2] (score 0.6749) Early Withdrawal Policy\n\nExceptions: no fee or interest forfeiture applies if the withdrawal is due to the death of the\naccount holder (verified by the estate) or a court order. These exceptions require a branch\nvisit and cannot be processed through the mobile app or call centre.\n\nFor the step-by-step process of breaking a term deposit, see `closing-early-procedure.md`.\n\n[3] (score 0.6374) Breaking a Term Deposit Early — Step by Step\n\nUse this procedure when a customer wants to withdraw funds from a term deposit before its\nmaturity date. Read `early-withdrawal-policy.md` first — this document only covers the\nmechanical steps, not the fee and interest rules.\n\n[4] (score 0.6214) Early Withdrawal Policy\n\n- **Interest forfeiture.** All interest accrued since opening (or since the last renewal) is\n  forfeited. The customer receives back only the principal, minus the administrative fee\n  below. This applies regardless of currency or term.\n- **Administrative fee.** A flat fee of **25 RON** (or the equivalent of 5 EUR / 5 USD for\n  foreign-currency deposits) is deducted from the principal at the time of early withdrawal.\n- **Partial withdrawal.** Partial early withdrawal is not offered on term deposits — breaking\n  a deposit closes it in full. Customers who need part of the funds must close the whole\n  deposit.\n\nQUESTION:\nPrevious conversation:\nUser: What is the minimum amount to open a standard term deposit?\nAssistant: Minimum opening amount for a standard term deposit is 1,000 RON (or the equivalent amount in EUR or USD) [1].\n\nUser: What fee applies if I withdraw from a term deposit before maturity?",
+        "retrieved": [
+          {
+            "score": 0.6977,
+            "text": "Early Withdrawal Policy\n\nBreaking a term deposit before its maturity date is allowed at any time, subject to the\nfollowing:",
+            "index": 0,
+            "strategy": "heading",
+            "source": "early-withdrawal-policy",
+            "id": "c67786a3-8e02-507c-9d08-ff7075df2963",
+            "metadata": {
+              "title": "Early Withdrawal Policy",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.6749,
+            "text": "Early Withdrawal Policy\n\nExceptions: no fee or interest forfeiture applies if the withdrawal is due to the death of the\naccount holder (verified by the estate) or a court order. These exceptions require a branch\nvisit and cannot be processed through the mobile app or call centre.\n\nFor the step-by-step process of breaking a term deposit, see `closing-early-procedure.md`.",
+            "index": 3,
+            "strategy": "heading",
+            "source": "early-withdrawal-policy",
+            "id": "e1b36c02-f5f7-5daa-8d1b-41bed7975495",
+            "metadata": {
+              "title": "Early Withdrawal Policy",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.6374,
+            "text": "Breaking a Term Deposit Early — Step by Step\n\nUse this procedure when a customer wants to withdraw funds from a term deposit before its\nmaturity date. Read `early-withdrawal-policy.md` first — this document only covers the\nmechanical steps, not the fee and interest rules.",
+            "index": 0,
+            "strategy": "heading",
+            "source": "closing-early-procedure",
+            "id": "d5eb2bd8-83c9-5d14-9f90-55c929df27ec",
+            "metadata": {
+              "title": "Breaking a Term Deposit Early — Step by Step",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.6214,
+            "text": "Early Withdrawal Policy\n\n- **Interest forfeiture.** All interest accrued since opening (or since the last renewal) is\n  forfeited. The customer receives back only the principal, minus the administrative fee\n  below. This applies regardless of currency or term.\n- **Administrative fee.** A flat fee of **25 RON** (or the equivalent of 5 EUR / 5 USD for\n  foreign-currency deposits) is deducted from the principal at the time of early withdrawal.\n- **Partial withdrawal.** Partial early withdrawal is not offered on term deposits — breaking\n  a deposit closes it in full. Customers who need part of the funds must close the whole\n  deposit.",
+            "index": 1,
+            "strategy": "heading",
+            "source": "early-withdrawal-policy",
+            "id": "d81b801c-fcb6-54f3-9b57-268c866b626c",
+            "metadata": {
+              "title": "Early Withdrawal Policy",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          }
+        ],
+        "dropped_below_threshold": 0,
+        "usage": {
+          "prompt_tokens": 578,
+          "completion_tokens": 380
+        }
+      }
+    },
+    {
+      "role": "user",
+      "text": "What is the deposit guarantee coverage limit at Libra Bank?"
+    },
+    {
+      "role": "bot",
+      "data": {
+        "answer": "The guarantee limit is 100,000 EUR equivalent per depositor, per bank — this applies regardless of currency, number of accounts or number of products (balances across accounts are added for the limit) [4].\n\nCoverage is provided by the national Bank Deposit Guarantee Fund and applies to principal plus interest accrued up to the date of a bank default; for joint accounts each holder is covered up to 100,000 EUR equivalent on their share combined with their other deposits at Libra Bank [1][2].",
+        "augmented": true,
+        "provider": "azure",
+        "model": "gpt-5-mini",
+        "agent": {
+          "name": "banccherul",
+          "display_name": "Banccherul",
+          "description": "The precise, professional banking assistant — the module's baseline behaviour.",
+          "mode": "local",
+          "temperature": 0.2,
+          "style_rules": [
+            "Answer in the same language as the user, precisely and professionally.",
+            "Two short paragraphs maximum unless asked for more.",
+            "If a question needs data you do not have, state exactly what is missing.",
+            "Never invent fees, rates, deadlines or policy details."
+          ]
+        },
+        "system_prompt": "You are Banccherul, the internal AI assistant of a retail bank. You help colleagues and customers with accurate, actionable answers about the bank's products, policies and procedures.\n\nStyle rules you must follow:\n- Answer in the same language as the user, precisely and professionally.\n- Two short paragraphs maximum unless asked for more.\n- If a question needs data you do not have, state exactly what is missing.\n- Never invent fees, rates, deadlines or policy details.\n\nYou are given CONTEXT passages retrieved from the bank's own documents. Base your answer on those passages. Cite the passages you use as [1], [2], … . If the passages do not contain what is needed, say so explicitly instead of inventing an answer.",
+        "prompt_sent": "CONTEXT — retrieved passages, most similar first:\n[1] (score 0.8181) Deposit Guarantee Scheme Coverage\n\nAll retail deposits at Libra Bank — including term deposits, notice savings accounts, and\ninstant-access savings accounts — are covered by the national Bank Deposit Guarantee Fund, up\nto the legal ceiling.\n\n[2] (score 0.7263) Deposit Guarantee Scheme Coverage\n\n**Joint accounts.** For joint accounts (see `joint-account-rules.md`), each account holder is\ncovered up to 100,000 EUR equivalent individually, calculated on their share of the joint\nbalance combined with their other deposits at Libra Bank.\n\n**What is covered.** Principal plus interest accrued up to the date of any bank default event,\nconverted to EUR at the exchange rate on that date for RON and USD balances.\n\n[3] (score 0.6958) Deposit Guarantee Scheme Coverage\n\n**What is not covered.** Investment products, structured deposits, and any product not\nexplicitly listed above are outside the guarantee scheme — but Libra Bank does not offer those\nproducts to retail customers in the first place (see `00-overview.md`).\n\nThis is a summary for customer-facing use. The authoritative legal text is the Bank Deposit\nGuarantee Fund's published regulation, available on request from any branch.\n\n[4] (score 0.6548) Deposit Guarantee Scheme Coverage\n\n**Coverage limit.** Deposits are guaranteed up to **100,000 EUR equivalent per depositor, per\nbank**, regardless of currency, number of accounts, or number of products held. If a customer\nholds both a term deposit and a notice savings account, the two balances are added together\nfor the purpose of the limit — the guarantee is not per product.\n\nQUESTION:\nPrevious conversation:\nUser: What is the minimum amount to open a standard term deposit?\nAssistant: Minimum opening amount for a standard term deposit is 1,000 RON (or the equivalent amount in EUR or USD) [1].\n\nUser: What fee applies if I withdraw from a term deposit before maturity?\nAssistant: An administrative fee of 25 RON (or the equivalent of 5 EUR / 5 USD for foreign‑currency deposits) is deducted from the principal on early withdrawal, and all interest accrued since opening (or since the last renewal) is forfeited — the customer receives principal minus the fee [4].\n\nException: no fee or interest forfeiture applies if the withdrawal is due to the death of the account holder (verified by the estate) or a court order; these exceptions require a branch visit and cannot be processed through the mobile app or call centre [2].\n\nUser: What is the deposit guarantee coverage limit at Libra Bank?",
+        "retrieved": [
+          {
+            "score": 0.8181,
+            "text": "Deposit Guarantee Scheme Coverage\n\nAll retail deposits at Libra Bank — including term deposits, notice savings accounts, and\ninstant-access savings accounts — are covered by the national Bank Deposit Guarantee Fund, up\nto the legal ceiling.",
+            "index": 0,
+            "strategy": "heading",
+            "source": "deposit-insurance-guarantee",
+            "id": "525d0a2d-cabc-505f-9b54-b613edb64ef1",
+            "metadata": {
+              "title": "Deposit Guarantee Scheme Coverage",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.7263,
+            "text": "Deposit Guarantee Scheme Coverage\n\n**Joint accounts.** For joint accounts (see `joint-account-rules.md`), each account holder is\ncovered up to 100,000 EUR equivalent individually, calculated on their share of the joint\nbalance combined with their other deposits at Libra Bank.\n\n**What is covered.** Principal plus interest accrued up to the date of any bank default event,\nconverted to EUR at the exchange rate on that date for RON and USD balances.",
+            "index": 2,
+            "strategy": "heading",
+            "source": "deposit-insurance-guarantee",
+            "id": "48bdd2dd-ea74-504a-8183-9dfd1cb9633b",
+            "metadata": {
+              "title": "Deposit Guarantee Scheme Coverage",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.6958,
+            "text": "Deposit Guarantee Scheme Coverage\n\n**What is not covered.** Investment products, structured deposits, and any product not\nexplicitly listed above are outside the guarantee scheme — but Libra Bank does not offer those\nproducts to retail customers in the first place (see `00-overview.md`).\n\nThis is a summary for customer-facing use. The authoritative legal text is the Bank Deposit\nGuarantee Fund's published regulation, available on request from any branch.",
+            "index": 3,
+            "strategy": "heading",
+            "source": "deposit-insurance-guarantee",
+            "id": "b897380a-621c-5433-b70d-15dfcc72bba0",
+            "metadata": {
+              "title": "Deposit Guarantee Scheme Coverage",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.6548,
+            "text": "Deposit Guarantee Scheme Coverage\n\n**Coverage limit.** Deposits are guaranteed up to **100,000 EUR equivalent per depositor, per\nbank**, regardless of currency, number of accounts, or number of products held. If a customer\nholds both a term deposit and a notice savings account, the two balances are added together\nfor the purpose of the limit — the guarantee is not per product.",
+            "index": 1,
+            "strategy": "heading",
+            "source": "deposit-insurance-guarantee",
+            "id": "3b4e890a-fc49-51a7-abfc-d8a2ea1f1bac",
+            "metadata": {
+              "title": "Deposit Guarantee Scheme Coverage",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          }
+        ],
+        "dropped_below_threshold": 0,
+        "usage": {
+          "prompt_tokens": 714,
+          "completion_tokens": 494
+        }
+      }
+    },
+    {
+      "role": "user",
+      "text": "What is the withholding tax rate on deposit interest?"
+    },
+    {
+      "role": "bot",
+      "data": {
+        "answer": "Withholding tax on deposit interest for individual customers is 10% of the gross interest; it is deducted automatically by Libra Bank at the moment interest is paid (at maturity for terms up to 12 months, or annually for longer terms) [1][4]. \n\nThis 10% rate applies uniformly across RON, EUR and USD deposits and across the bank’s retail deposit products; withholding treatment for business (legal‑entity) accounts differs and is not covered here [2].",
+        "augmented": true,
+        "provider": "azure",
+        "model": "gpt-5-mini",
+        "agent": {
+          "name": "banccherul",
+          "display_name": "Banccherul",
+          "description": "The precise, professional banking assistant — the module's baseline behaviour.",
+          "mode": "local",
+          "temperature": 0.2,
+          "style_rules": [
+            "Answer in the same language as the user, precisely and professionally.",
+            "Two short paragraphs maximum unless asked for more.",
+            "If a question needs data you do not have, state exactly what is missing.",
+            "Never invent fees, rates, deadlines or policy details."
+          ]
+        },
+        "system_prompt": "You are Banccherul, the internal AI assistant of a retail bank. You help colleagues and customers with accurate, actionable answers about the bank's products, policies and procedures.\n\nStyle rules you must follow:\n- Answer in the same language as the user, precisely and professionally.\n- Two short paragraphs maximum unless asked for more.\n- If a question needs data you do not have, state exactly what is missing.\n- Never invent fees, rates, deadlines or policy details.\n\nYou are given CONTEXT passages retrieved from the bank's own documents. Base your answer on those passages. Cite the passages you use as [1], [2], … . If the passages do not contain what is needed, say so explicitly instead of inventing an answer.",
+        "prompt_sent": "CONTEXT — retrieved passages, most similar first:\n[1] (score 0.8246) Withholding Tax on Deposit Interest\n\n**Rate.** The withholding tax rate is **10%** of gross interest earned, applied at the moment\ninterest is paid — at maturity for terms up to 12 months, or annually for longer terms (see\n`interest-rate-table-2026.md` for payment timing per term).\n\n[2] (score 0.6986) Withholding Tax on Deposit Interest\n\n**Business accounts.** Withholding tax treatment for legal entities differs and is not covered\nby this document.\n\nThis rate applies uniformly across RON, EUR and USD deposits, and across all products\ndescribed in `account-types.md`.\n\n[3] (score 0.6793) Withholding Tax on Deposit Interest\n\n**Example.** A 12-month RON deposit earning 5.00% gross on a 10,000 RON principal accrues 500\nRON gross interest at maturity; 50 RON (10%) is withheld, and the customer receives 450 RON\nnet interest alongside the returned principal.\n\n[4] (score 0.6634) Withholding Tax on Deposit Interest\n\nInterest earned on term deposits and notice savings accounts held by individual (non-business)\ncustomers is subject to withholding tax, deducted automatically by Libra Bank before the\ninterest is paid or added to the deposit.\n\nQUESTION:\nPrevious conversation:\nUser: What is the minimum amount to open a standard term deposit?\nAssistant: Minimum opening amount for a standard term deposit is 1,000 RON (or the equivalent amount in EUR or USD) [1].\n\nUser: What fee applies if I withdraw from a term deposit before maturity?\nAssistant: An administrative fee of 25 RON (or the equivalent of 5 EUR / 5 USD for foreign‑currency deposits) is deducted from the principal on early withdrawal, and all interest accrued since opening (or since the last renewal) is forfeited — the customer receives principal minus the fee [4].\n\nException: no fee or interest forfeiture applies if the withdrawal is due to the death of the account holder (verified by the estate) or a court order; these exceptions require a branch visit and cannot be processed through the mobile app or call centre [2].\n\nUser: What is the deposit guarantee coverage limit at Libra Bank?\nAssistant: The guarantee limit is 100,000 EUR equivalent per depositor, per bank — this applies regardless of currency, number of accounts or number of products (balances across accounts are added for the limit) [4].\n\nCoverage is provided by the national Bank Deposit Guarantee Fund and applies to principal plus interest accrued up to the date of a bank default; for joint accounts each holder is covered up to 100,000 EUR equivalent on their share combined with their other deposits at Libra Bank [1][2].\n\nUser: What is the withholding tax rate on deposit interest?",
+        "retrieved": [
+          {
+            "score": 0.8246,
+            "text": "Withholding Tax on Deposit Interest\n\n**Rate.** The withholding tax rate is **10%** of gross interest earned, applied at the moment\ninterest is paid — at maturity for terms up to 12 months, or annually for longer terms (see\n`interest-rate-table-2026.md` for payment timing per term).",
+            "index": 1,
+            "strategy": "heading",
+            "source": "tax-on-interest",
+            "id": "a59d1671-0df9-52d2-9922-c21e98360cec",
+            "metadata": {
+              "title": "Withholding Tax on Deposit Interest",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.6986,
+            "text": "Withholding Tax on Deposit Interest\n\n**Business accounts.** Withholding tax treatment for legal entities differs and is not covered\nby this document.\n\nThis rate applies uniformly across RON, EUR and USD deposits, and across all products\ndescribed in `account-types.md`.",
+            "index": 4,
+            "strategy": "heading",
+            "source": "tax-on-interest",
+            "id": "68dfbafc-b4aa-515f-a50d-bfc2d4d67740",
+            "metadata": {
+              "title": "Withholding Tax on Deposit Interest",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.6793,
+            "text": "Withholding Tax on Deposit Interest\n\n**Example.** A 12-month RON deposit earning 5.00% gross on a 10,000 RON principal accrues 500\nRON gross interest at maturity; 50 RON (10%) is withheld, and the customer receives 450 RON\nnet interest alongside the returned principal.",
+            "index": 2,
+            "strategy": "heading",
+            "source": "tax-on-interest",
+            "id": "213e07af-edb7-5ac4-a05d-99b0d628ff25",
+            "metadata": {
+              "title": "Withholding Tax on Deposit Interest",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.6634,
+            "text": "Withholding Tax on Deposit Interest\n\nInterest earned on term deposits and notice savings accounts held by individual (non-business)\ncustomers is subject to withholding tax, deducted automatically by Libra Bank before the\ninterest is paid or added to the deposit.",
+            "index": 0,
+            "strategy": "heading",
+            "source": "tax-on-interest",
+            "id": "45ceaf5c-ec29-569d-bbc3-f3825fecf5bb",
+            "metadata": {
+              "title": "Withholding Tax on Deposit Interest",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          }
+        ],
+        "dropped_below_threshold": 0,
+        "usage": {
+          "prompt_tokens": 760,
+          "completion_tokens": 491
+        }
+      }
+    },
+    {
+      "role": "user",
+      "text": "What is the current notice period for a notice savings account?"
+    },
+    {
+      "role": "bot",
+      "data": {
+        "answer": "The current notice period is 45 calendar days from the date the withdrawal request is submitted, regardless of the amount requested (policy effective 2026-01-15) [3].\n\nThere is no way to expedite or waive the 45-day notice; requests submitted before 2026-01-15 were honoured at the prior 30-day period. Once the notice period elapses, funds become available for transfer to the linked current account for 5 business days — if not withdrawn in that window the request expires and must be resubmitted [4][1].",
+        "augmented": true,
+        "provider": "azure",
+        "model": "gpt-5-mini",
+        "agent": {
+          "name": "banccherul",
+          "display_name": "Banccherul",
+          "description": "The precise, professional banking assistant — the module's baseline behaviour.",
+          "mode": "local",
+          "temperature": 0.2,
+          "style_rules": [
+            "Answer in the same language as the user, precisely and professionally.",
+            "Two short paragraphs maximum unless asked for more.",
+            "If a question needs data you do not have, state exactly what is missing.",
+            "Never invent fees, rates, deadlines or policy details."
+          ]
+        },
+        "system_prompt": "You are Banccherul, the internal AI assistant of a retail bank. You help colleagues and customers with accurate, actionable answers about the bank's products, policies and procedures.\n\nStyle rules you must follow:\n- Answer in the same language as the user, precisely and professionally.\n- Two short paragraphs maximum unless asked for more.\n- If a question needs data you do not have, state exactly what is missing.\n- Never invent fees, rates, deadlines or policy details.\n\nYou are given CONTEXT passages retrieved from the bank's own documents. Base your answer on those passages. Cite the passages you use as [1], [2], … . If the passages do not contain what is needed, say so explicitly instead of inventing an answer.",
+        "prompt_sent": "CONTEXT — retrieved passages, most similar first:\n[1] (score 0.7939) Notice Savings Account — Withdrawal Notice Period (current)\n\nOnce the notice period elapses, funds become available for transfer to the linked current\naccount for 5 business days. If not withdrawn within that window, the withdrawal request\nexpires and the customer must submit a new one, restarting the notice period.\n\n[2] (score 0.7793) Notice Savings Account — Withdrawal Notice Period (superseded)\n\nCustomers holding a notice savings account must give advance notice before withdrawing funds.\nUnder this (2025) policy, the required notice period is **30 calendar days** from the date the\nwithdrawal request is submitted, regardless of the amount requested.\n\n[3] (score 0.7543) Notice Savings Account — Withdrawal Notice Period (current)\n\n> **Current policy**, effective 2026-01-15. Replaces `notice-period-policy-v1.md`. The notice\n> period was extended from 30 to 45 days as part of the 2026 liquidity policy update.\n\nCustomers holding a notice savings account must give advance notice before withdrawing funds.\nUnder this (current) policy, the required notice period is **45 calendar days** from the date\nthe withdrawal request is submitted, regardless of the amount requested.\n\n[4] (score 0.7288) Notice Savings Account — Withdrawal Notice Period (current)\n\nThere is no way to expedite or waive the notice period under this policy, including for\nemergencies — this is unlike term deposits, which can always be broken early subject to\n`early-withdrawal-policy.md`.\n\nRequests submitted before 2026-01-15 under the old 30-day notice period were honoured at 30\ndays; only requests submitted on or after that date are subject to the new 45-day period.\n\nQUESTION:\nPrevious conversation:\nUser: What fee applies if I withdraw from a term deposit before maturity?\nAssistant: An administrative fee of 25 RON (or the equivalent of 5 EUR / 5 USD for foreign‑currency deposits) is deducted from the principal on early withdrawal, and all interest accrued since opening (or since the last renewal) is forfeited — the customer receives principal minus the fee [4].\n\nException: no fee or interest forfeiture applies if the withdrawal is due to the death of the account holder (verified by the estate) or a court order; these exceptions require a branch visit and cannot be processed through the mobile app or call centre [2].\n\nUser: What is the deposit guarantee coverage limit at Libra Bank?\nAssistant: The guarantee limit is 100,000 EUR equivalent per depositor, per bank — this applies regardless of currency, number of accounts or number of products (balances across accounts are added for the limit) [4].\n\nCoverage is provided by the national Bank Deposit Guarantee Fund and applies to principal plus interest accrued up to the date of a bank default; for joint accounts each holder is covered up to 100,000 EUR equivalent on their share combined with their other deposits at Libra Bank [1][2].\n\nUser: What is the withholding tax rate on deposit interest?\nAssistant: Withholding tax on deposit interest for individual customers is 10% of the gross interest; it is deducted automatically by Libra Bank at the moment interest is paid (at maturity for terms up to 12 months, or annually for longer terms) [1][4]. \n\nThis 10% rate applies uniformly across RON, EUR and USD deposits and across the bank’s retail deposit products; withholding treatment for business (legal‑entity) accounts differs and is not covered here [2].\n\nUser: What is the current notice period for a notice savings account?",
+        "retrieved": [
+          {
+            "score": 0.7939,
+            "text": "Notice Savings Account — Withdrawal Notice Period (current)\n\nOnce the notice period elapses, funds become available for transfer to the linked current\naccount for 5 business days. If not withdrawn within that window, the withdrawal request\nexpires and the customer must submit a new one, restarting the notice period.",
+            "index": 2,
+            "strategy": "heading",
+            "source": "notice-period-policy-v2",
+            "id": "2f5d9e80-1940-51dd-9248-be94c17508f9",
+            "metadata": {
+              "title": "Notice Savings Account — Withdrawal Notice Period (current)",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-15",
+              "version": 2
+            }
+          },
+          {
+            "score": 0.7793,
+            "text": "Notice Savings Account — Withdrawal Notice Period (superseded)\n\nCustomers holding a notice savings account must give advance notice before withdrawing funds.\nUnder this (2025) policy, the required notice period is **30 calendar days** from the date the\nwithdrawal request is submitted, regardless of the amount requested.",
+            "index": 1,
+            "strategy": "heading",
+            "source": "notice-period-policy-v1",
+            "id": "ca8c0c6c-b64c-537b-8d83-f9fb4dca7e6e",
+            "metadata": {
+              "title": "Notice Savings Account — Withdrawal Notice Period (superseded)",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2025-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.7543,
+            "text": "Notice Savings Account — Withdrawal Notice Period (current)\n\n> **Current policy**, effective 2026-01-15. Replaces `notice-period-policy-v1.md`. The notice\n> period was extended from 30 to 45 days as part of the 2026 liquidity policy update.\n\nCustomers holding a notice savings account must give advance notice before withdrawing funds.\nUnder this (current) policy, the required notice period is **45 calendar days** from the date\nthe withdrawal request is submitted, regardless of the amount requested.",
+            "index": 0,
+            "strategy": "heading",
+            "source": "notice-period-policy-v2",
+            "id": "dcbd85ea-f1c7-5bfe-9e90-26c69a1836c2",
+            "metadata": {
+              "title": "Notice Savings Account — Withdrawal Notice Period (current)",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-15",
+              "version": 2
+            }
+          },
+          {
+            "score": 0.7288,
+            "text": "Notice Savings Account — Withdrawal Notice Period (current)\n\nThere is no way to expedite or waive the notice period under this policy, including for\nemergencies — this is unlike term deposits, which can always be broken early subject to\n`early-withdrawal-policy.md`.\n\nRequests submitted before 2026-01-15 under the old 30-day notice period were honoured at 30\ndays; only requests submitted on or after that date are subject to the new 45-day period.",
+            "index": 3,
+            "strategy": "heading",
+            "source": "notice-period-policy-v2",
+            "id": "9cd02d46-cb6b-51f4-9adb-20f63da45248",
+            "metadata": {
+              "title": "Notice Savings Account — Withdrawal Notice Period (current)",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-15",
+              "version": 2
+            }
+          }
+        ],
+        "dropped_below_threshold": 0,
+        "usage": {
+          "prompt_tokens": 915,
+          "completion_tokens": 572
+        }
+      }
+    },
+    {
+      "role": "user",
+      "text": "What is the annual interest rate for a 12-month RON term deposit under the 2026 schedule?"
+    },
+    {
+      "role": "bot",
+      "data": {
+        "answer": "The annual gross interest rate for a 12‑month RON term deposit under the 2026 schedule is 5.00% [1]. \n\nThis rate is a gross annual rate (before withholding tax); for 12‑month terms interest is paid at maturity [3][1].",
+        "augmented": true,
+        "provider": "azure",
+        "model": "gpt-5-mini",
+        "agent": {
+          "name": "banccherul",
+          "display_name": "Banccherul",
+          "description": "The precise, professional banking assistant — the module's baseline behaviour.",
+          "mode": "local",
+          "temperature": 0.2,
+          "style_rules": [
+            "Answer in the same language as the user, precisely and professionally.",
+            "Two short paragraphs maximum unless asked for more.",
+            "If a question needs data you do not have, state exactly what is missing.",
+            "Never invent fees, rates, deadlines or policy details."
+          ]
+        },
+        "system_prompt": "You are Banccherul, the internal AI assistant of a retail bank. You help colleagues and customers with accurate, actionable answers about the bank's products, policies and procedures.\n\nStyle rules you must follow:\n- Answer in the same language as the user, precisely and professionally.\n- Two short paragraphs maximum unless asked for more.\n- If a question needs data you do not have, state exactly what is missing.\n- Never invent fees, rates, deadlines or policy details.\n\nYou are given CONTEXT passages retrieved from the bank's own documents. Base your answer on those passages. Cite the passages you use as [1], [2], … . If the passages do not contain what is needed, say so explicitly instead of inventing an answer.",
+        "prompt_sent": "CONTEXT — retrieved passages, most similar first:\n[1] (score 0.7748) Term Deposit Interest Rates — 2026 Schedule (current)\n\n| Term      | RON   | EUR   | USD   |\n|-----------|-------|-------|-------|\n| 1 month   | 3.50% | 1.40% | 1.60% |\n| 3 months  | 4.00% | 1.70% | 1.90% |\n| 6 months  | 4.50% | 2.00% | 2.20% |\n| 12 months | 5.00% | 2.30% | 2.50% |\n| 18 months | 4.80% | 2.20% | 2.40% |\n| 24 months | 4.60% | 2.10% | 2.30% |\n\n[2] (score 0.7461) Term Deposit Interest Rates — 2025 Schedule (superseded)\n\n| Term      | RON   | EUR   | USD   |\n|-----------|-------|-------|-------|\n| 1 month   | 3.10% | 1.20% | 1.40% |\n| 3 months  | 3.60% | 1.50% | 1.70% |\n| 6 months  | 4.00% | 1.80% | 2.00% |\n| 12 months | 4.40% | 2.10% | 2.30% |\n| 18 months | 4.30% | 2.00% | 2.20% |\n| 24 months | 4.20% | 1.90% | 2.10% |\n\n[3] (score 0.7165) Term Deposit Interest Rates — 2026 Schedule (current)\n\nRates are gross annual rates, before withholding tax (see `tax-on-interest.md`). Interest is\npaid at maturity for terms up to 12 months, and annually for terms above 12 months.\n\n[4] (score 0.7026) Term Deposit Interest Rates — 2026 Schedule (current)\n\n> **Current schedule**, effective 2026-01-01. Replaces `interest-rate-table-2025.md`. Rates\n> rose across all terms and currencies compared to 2025, reflecting the higher policy rate.\n\nAnnual interest rates for standard term deposits, 2026 schedule:\n\nQUESTION:\nPrevious conversation:\nUser: What is the deposit guarantee coverage limit at Libra Bank?\nAssistant: The guarantee limit is 100,000 EUR equivalent per depositor, per bank — this applies regardless of currency, number of accounts or number of products (balances across accounts are added for the limit) [4].\n\nCoverage is provided by the national Bank Deposit Guarantee Fund and applies to principal plus interest accrued up to the date of a bank default; for joint accounts each holder is covered up to 100,000 EUR equivalent on their share combined with their other deposits at Libra Bank [1][2].\n\nUser: What is the withholding tax rate on deposit interest?\nAssistant: Withholding tax on deposit interest for individual customers is 10% of the gross interest; it is deducted automatically by Libra Bank at the moment interest is paid (at maturity for terms up to 12 months, or annually for longer terms) [1][4]. \n\nThis 10% rate applies uniformly across RON, EUR and USD deposits and across the bank’s retail deposit products; withholding treatment for business (legal‑entity) accounts differs and is not covered here [2].\n\nUser: What is the current notice period for a notice savings account?\nAssistant: The current notice period is 45 calendar days from the date the withdrawal request is submitted, regardless of the amount requested (policy effective 2026-01-15) [3].\n\nThere is no way to expedite or waive the 45-day notice; requests submitted before 2026-01-15 were honoured at the prior 30-day period. Once the notice period elapses, funds become available for transfer to the linked current account for 5 business days — if not withdrawn in that window the request expires and must be resubmitted [4][1].\n\nUser: What is the annual interest rate for a 12-month RON term deposit under the 2026 schedule?",
+        "retrieved": [
+          {
+            "score": 0.7748,
+            "text": "Term Deposit Interest Rates — 2026 Schedule (current)\n\n| Term      | RON   | EUR   | USD   |\n|-----------|-------|-------|-------|\n| 1 month   | 3.50% | 1.40% | 1.60% |\n| 3 months  | 4.00% | 1.70% | 1.90% |\n| 6 months  | 4.50% | 2.00% | 2.20% |\n| 12 months | 5.00% | 2.30% | 2.50% |\n| 18 months | 4.80% | 2.20% | 2.40% |\n| 24 months | 4.60% | 2.10% | 2.30% |",
+            "index": 1,
+            "strategy": "heading",
+            "source": "interest-rate-table-2026",
+            "id": "28ea46c7-28ac-5a99-9f62-e7861ad0cc25",
+            "metadata": {
+              "title": "Term Deposit Interest Rates — 2026 Schedule (current)",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 2
+            }
+          },
+          {
+            "score": 0.7461,
+            "text": "Term Deposit Interest Rates — 2025 Schedule (superseded)\n\n| Term      | RON   | EUR   | USD   |\n|-----------|-------|-------|-------|\n| 1 month   | 3.10% | 1.20% | 1.40% |\n| 3 months  | 3.60% | 1.50% | 1.70% |\n| 6 months  | 4.00% | 1.80% | 2.00% |\n| 12 months | 4.40% | 2.10% | 2.30% |\n| 18 months | 4.30% | 2.00% | 2.20% |\n| 24 months | 4.20% | 1.90% | 2.10% |",
+            "index": 1,
+            "strategy": "heading",
+            "source": "interest-rate-table-2025",
+            "id": "d32e21ba-288a-55f9-8051-29ea9f3a0423",
+            "metadata": {
+              "title": "Term Deposit Interest Rates — 2025 Schedule (superseded)",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2025-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.7165,
+            "text": "Term Deposit Interest Rates — 2026 Schedule (current)\n\nRates are gross annual rates, before withholding tax (see `tax-on-interest.md`). Interest is\npaid at maturity for terms up to 12 months, and annually for terms above 12 months.",
+            "index": 2,
+            "strategy": "heading",
+            "source": "interest-rate-table-2026",
+            "id": "94899dc8-2b81-5dad-b3dd-50135e638864",
+            "metadata": {
+              "title": "Term Deposit Interest Rates — 2026 Schedule (current)",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 2
+            }
+          },
+          {
+            "score": 0.7026,
+            "text": "Term Deposit Interest Rates — 2026 Schedule (current)\n\n> **Current schedule**, effective 2026-01-01. Replaces `interest-rate-table-2025.md`. Rates\n> rose across all terms and currencies compared to 2025, reflecting the higher policy rate.\n\nAnnual interest rates for standard term deposits, 2026 schedule:",
+            "index": 0,
+            "strategy": "heading",
+            "source": "interest-rate-table-2026",
+            "id": "8d0c5fa7-6d99-57fe-82bf-3c3b0b054c17",
+            "metadata": {
+              "title": "Term Deposit Interest Rates — 2026 Schedule (current)",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 2
+            }
+          }
+        ],
+        "dropped_below_threshold": 0,
+        "usage": {
+          "prompt_tokens": 1075,
+          "completion_tokens": 325
+        }
+      }
+    },
+    {
+      "role": "user",
+      "text": "How much does a paper monthly statement cost for a deposit account?"
+    },
+    {
+      "role": "bot",
+      "data": {
+        "answer": "A paper monthly statement sent by post costs 8 RON per month [1].\n\nE‑statements delivered in the mobile app are free; fees are normally debited from the linked current account (or from the deposit principal if no current account is linked) and do not apply to customers flagged as vulnerable [1][3].",
+        "augmented": true,
+        "provider": "azure",
+        "model": "gpt-5-mini",
+        "agent": {
+          "name": "banccherul",
+          "display_name": "Banccherul",
+          "description": "The precise, professional banking assistant — the module's baseline behaviour.",
+          "mode": "local",
+          "temperature": 0.2,
+          "style_rules": [
+            "Answer in the same language as the user, precisely and professionally.",
+            "Two short paragraphs maximum unless asked for more.",
+            "If a question needs data you do not have, state exactly what is missing.",
+            "Never invent fees, rates, deadlines or policy details."
+          ]
+        },
+        "system_prompt": "You are Banccherul, the internal AI assistant of a retail bank. You help colleagues and customers with accurate, actionable answers about the bank's products, policies and procedures.\n\nStyle rules you must follow:\n- Answer in the same language as the user, precisely and professionally.\n- Two short paragraphs maximum unless asked for more.\n- If a question needs data you do not have, state exactly what is missing.\n- Never invent fees, rates, deadlines or policy details.\n\nYou are given CONTEXT passages retrieved from the bank's own documents. Base your answer on those passages. Cite the passages you use as [1], [2], … . If the passages do not contain what is needed, say so explicitly instead of inventing an answer.",
+        "prompt_sent": "CONTEXT — retrieved passages, most similar first:\n[1] (score 0.5295) Deposit Account Fee Schedule — Fees\n\n| Fee                                   | Amount           | Notes                              |\n|----------------------------------------|------------------|-------------------------------------|\n| Account opening                        | Free             | Any channel                         |\n| Monthly statement (paper, by post)     | 8 RON            | E-statements are free               |\n| Monthly statement (electronic)         | Free             | Delivered in the mobile app         |\n| Early withdrawal administrative fee    | 25 RON           | See `early-withdrawal-policy.md`    |\n| Balance certificate (branch)           | 15 RON           | For visa, court or notary use       |\n| Balance certificate (mobile app)       | Free             | Self-service, instant               |\n| Deposit closure at maturity            | Free             | Any channel                         |\n| Duplicate contract copy                | 10 RON           | Branch only                         |\n| International wire on maturity payout  | 35 RON           | Only for payouts to non-Libra IBANs |\n\n[2] (score 0.5069) Deposit Account Fee Schedule — Fees\n\nAll fees for term deposits and notice savings accounts, in RON (or currency equivalent):\n\n[3] (score 0.4848) Deposit Account Fee Schedule — Vulnerable customers\n\nFees are debited from the customer's linked current account, or from the deposit principal if\nno current account is linked (e.g., some Young Savers deposits). Fees do not apply to\ncustomers in the Compliance-flagged \"vulnerable customer\" category, per internal policy —\nbranch staff should check this flag before charging any fee on this list.\n\n[4] (score 0.4426) Deposit Account Types — Standard term deposit\n\nAvailable in RON, EUR or USD. Minimum opening amount is 1,000 RON or the equivalent in\nEUR/USD. Terms available: 1, 3, 6, 12, 18 and 24 months. Open to any customer aged 18 or over\nwith an active current account at Libra Bank.\n\nQUESTION:\nPrevious conversation:\nUser: What is the withholding tax rate on deposit interest?\nAssistant: Withholding tax on deposit interest for individual customers is 10% of the gross interest; it is deducted automatically by Libra Bank at the moment interest is paid (at maturity for terms up to 12 months, or annually for longer terms) [1][4]. \n\nThis 10% rate applies uniformly across RON, EUR and USD deposits and across the bank’s retail deposit products; withholding treatment for business (legal‑entity) accounts differs and is not covered here [2].\n\nUser: What is the current notice period for a notice savings account?\nAssistant: The current notice period is 45 calendar days from the date the withdrawal request is submitted, regardless of the amount requested (policy effective 2026-01-15) [3].\n\nThere is no way to expedite or waive the 45-day notice; requests submitted before 2026-01-15 were honoured at the prior 30-day period. Once the notice period elapses, funds become available for transfer to the linked current account for 5 business days — if not withdrawn in that window the request expires and must be resubmitted [4][1].\n\nUser: What is the annual interest rate for a 12-month RON term deposit under the 2026 schedule?\nAssistant: The annual gross interest rate for a 12‑month RON term deposit under the 2026 schedule is 5.00% [1]. \n\nThis rate is a gross annual rate (before withholding tax); for 12‑month terms interest is paid at maturity [3][1].\n\nUser: How much does a paper monthly statement cost for a deposit account?",
+        "retrieved": [
+          {
+            "score": 0.5295,
+            "text": "Deposit Account Fee Schedule — Fees\n\n| Fee                                   | Amount           | Notes                              |\n|----------------------------------------|------------------|-------------------------------------|\n| Account opening                        | Free             | Any channel                         |\n| Monthly statement (paper, by post)     | 8 RON            | E-statements are free               |\n| Monthly statement (electronic)         | Free             | Delivered in the mobile app         |\n| Early withdrawal administrative fee    | 25 RON           | See `early-withdrawal-policy.md`    |\n| Balance certificate (branch)           | 15 RON           | For visa, court or notary use       |\n| Balance certificate (mobile app)       | Free             | Self-service, instant               |\n| Deposit closure at maturity            | Free             | Any channel                         |\n| Duplicate contract copy                | 10 RON           | Branch only                         |\n| International wire on maturity payout  | 35 RON           | Only for payouts to non-Libra IBANs |",
+            "index": 1,
+            "strategy": "heading",
+            "source": "fee-schedule",
+            "id": "7d0918b4-a5f1-5be2-9b03-b89136ce9d0a",
+            "metadata": {
+              "title": "Deposit Account Fee Schedule",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.5069,
+            "text": "Deposit Account Fee Schedule — Fees\n\nAll fees for term deposits and notice savings accounts, in RON (or currency equivalent):",
+            "index": 0,
+            "strategy": "heading",
+            "source": "fee-schedule",
+            "id": "0c6ccebb-64a1-5c14-9f9f-9236ddbcb45a",
+            "metadata": {
+              "title": "Deposit Account Fee Schedule",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.4848,
+            "text": "Deposit Account Fee Schedule — Vulnerable customers\n\nFees are debited from the customer's linked current account, or from the deposit principal if\nno current account is linked (e.g., some Young Savers deposits). Fees do not apply to\ncustomers in the Compliance-flagged \"vulnerable customer\" category, per internal policy —\nbranch staff should check this flag before charging any fee on this list.",
+            "index": 2,
+            "strategy": "heading",
+            "source": "fee-schedule",
+            "id": "d1a4fbc7-0245-5f1b-bc99-eb85aff23559",
+            "metadata": {
+              "title": "Deposit Account Fee Schedule",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.4426,
+            "text": "Deposit Account Types — Standard term deposit\n\nAvailable in RON, EUR or USD. Minimum opening amount is 1,000 RON or the equivalent in\nEUR/USD. Terms available: 1, 3, 6, 12, 18 and 24 months. Open to any customer aged 18 or over\nwith an active current account at Libra Bank.",
+            "index": 1,
+            "strategy": "heading",
+            "source": "account-types",
+            "id": "c3dd8a03-92aa-53ca-8ecf-f219a6015a8b",
+            "metadata": {
+              "title": "Deposit Account Types",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          }
+        ],
+        "dropped_below_threshold": 0,
+        "usage": {
+          "prompt_tokens": 945,
+          "completion_tokens": 332
+        }
+      }
+    },
+    {
+      "role": "user",
+      "text": "I qualify for the Loyalty Rate bonus — what total annual rate would I get on a 12-month EUR term deposit?"
+    },
+    {
+      "role": "bot",
+      "data": {
+        "answer": "The Loyalty Rate bonus is a fixed +0.30 percentage points added to the base rate from the 2026 interest-rate table, applied at account opening and fixed for the term (re‑evaluated only at renewal) [2][4]. Note the Loyalty bonus does not apply to the Young Savers term deposit (Young Savers has its own fixed +0.20 pp bonus that cannot be combined) [3].\n\nThe passages you provided do not include the base annual rate for a 12‑month EUR term deposit from the 2026 interest‑rate table — I need that base rate (or the interest‑rate‑table‑2026.md entry for 12 months, EUR) to give the total. The total annual rate = (12‑month EUR base rate) + 0.30 percentage points; send the base rate and I will calculate the exact figure.",
+        "augmented": true,
+        "provider": "azure",
+        "model": "gpt-5-mini",
+        "agent": {
+          "name": "banccherul",
+          "display_name": "Banccherul",
+          "description": "The precise, professional banking assistant — the module's baseline behaviour.",
+          "mode": "local",
+          "temperature": 0.2,
+          "style_rules": [
+            "Answer in the same language as the user, precisely and professionally.",
+            "Two short paragraphs maximum unless asked for more.",
+            "If a question needs data you do not have, state exactly what is missing.",
+            "Never invent fees, rates, deadlines or policy details."
+          ]
+        },
+        "system_prompt": "You are Banccherul, the internal AI assistant of a retail bank. You help colleagues and customers with accurate, actionable answers about the bank's products, policies and procedures.\n\nStyle rules you must follow:\n- Answer in the same language as the user, precisely and professionally.\n- Two short paragraphs maximum unless asked for more.\n- If a question needs data you do not have, state exactly what is missing.\n- Never invent fees, rates, deadlines or policy details.\n\nYou are given CONTEXT passages retrieved from the bank's own documents. Base your answer on those passages. Cite the passages you use as [1], [2], … . If the passages do not contain what is needed, say so explicitly instead of inventing an answer.",
+        "prompt_sent": "CONTEXT — retrieved passages, most similar first:\n[1] (score 0.6867) Loyalty Rate Bonus — Eligibility\n\nThe Loyalty Rate is a bonus added on top of the standard term deposit rate (see\n`interest-rate-table-2026.md` for base rates) for customers who meet all three conditions\nbelow at the time of opening the deposit:\n\n[2] (score 0.6756) Loyalty Rate Bonus — Eligibility\n\nCustomers who meet all three conditions receive a bonus of **0.30 percentage points** added\nto the base rate shown in the current interest rate table, for the full term of the deposit.\nThe bonus is fixed at opening and does not change if the customer later stops meeting\ncondition 1 or 2; it is re-evaluated only at renewal (see `auto-renewal-policy.md`).\n\n[3] (score 0.6446) Loyalty Rate Bonus — Eligibility\n\nThe bonus does not apply to the Young Savers term deposit, which has its own fixed 0.20\npercentage point bonus that cannot be combined with the Loyalty Rate.\n\nBranch staff can check eligibility in the customer's profile under \"Relationship tenure\" and\n\"Active products.\" The bonus must be applied manually at account opening — it is not\ncalculated automatically by the core banking system as of this document's effective date.\n\n[4] (score 0.6327) Term Deposit Interest Rates — 2026 Schedule (current)\n\nThe Young Savers bonus (`account-types.md`) and the Loyalty Rate bonus\n(`loyalty-rate-eligibility.md`) both stack on top of the base rate shown above, applied at the\ntime of opening and fixed for the life of the deposit. See `loyalty-rate-eligibility.md` for\nwho qualifies for the Loyalty Rate bonus and its size — the base rate above is only part of\nwhat a loyalty customer actually earns.\n\nQUESTION:\nPrevious conversation:\nUser: What is the current notice period for a notice savings account?\nAssistant: The current notice period is 45 calendar days from the date the withdrawal request is submitted, regardless of the amount requested (policy effective 2026-01-15) [3].\n\nThere is no way to expedite or waive the 45-day notice; requests submitted before 2026-01-15 were honoured at the prior 30-day period. Once the notice period elapses, funds become available for transfer to the linked current account for 5 business days — if not withdrawn in that window the request expires and must be resubmitted [4][1].\n\nUser: What is the annual interest rate for a 12-month RON term deposit under the 2026 schedule?\nAssistant: The annual gross interest rate for a 12‑month RON term deposit under the 2026 schedule is 5.00% [1]. \n\nThis rate is a gross annual rate (before withholding tax); for 12‑month terms interest is paid at maturity [3][1].\n\nUser: How much does a paper monthly statement cost for a deposit account?\nAssistant: A paper monthly statement sent by post costs 8 RON per month [1].\n\nE‑statements delivered in the mobile app are free; fees are normally debited from the linked current account (or from the deposit principal if no current account is linked) and do not apply to customers flagged as vulnerable [1][3].\n\nUser: I qualify for the Loyalty Rate bonus — what total annual rate would I get on a 12-month EUR term deposit?",
+        "retrieved": [
+          {
+            "score": 0.6867,
+            "text": "Loyalty Rate Bonus — Eligibility\n\nThe Loyalty Rate is a bonus added on top of the standard term deposit rate (see\n`interest-rate-table-2026.md` for base rates) for customers who meet all three conditions\nbelow at the time of opening the deposit:",
+            "index": 0,
+            "strategy": "heading",
+            "source": "loyalty-rate-eligibility",
+            "id": "b4cbd9c1-851b-5587-b819-2e13dabe4ce0",
+            "metadata": {
+              "title": "Loyalty Rate Bonus — Eligibility",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.6756,
+            "text": "Loyalty Rate Bonus — Eligibility\n\nCustomers who meet all three conditions receive a bonus of **0.30 percentage points** added\nto the base rate shown in the current interest rate table, for the full term of the deposit.\nThe bonus is fixed at opening and does not change if the customer later stops meeting\ncondition 1 or 2; it is re-evaluated only at renewal (see `auto-renewal-policy.md`).",
+            "index": 2,
+            "strategy": "heading",
+            "source": "loyalty-rate-eligibility",
+            "id": "d749bf60-b253-57d6-9110-4d1e1d9d078b",
+            "metadata": {
+              "title": "Loyalty Rate Bonus — Eligibility",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.6446,
+            "text": "Loyalty Rate Bonus — Eligibility\n\nThe bonus does not apply to the Young Savers term deposit, which has its own fixed 0.20\npercentage point bonus that cannot be combined with the Loyalty Rate.\n\nBranch staff can check eligibility in the customer's profile under \"Relationship tenure\" and\n\"Active products.\" The bonus must be applied manually at account opening — it is not\ncalculated automatically by the core banking system as of this document's effective date.",
+            "index": 3,
+            "strategy": "heading",
+            "source": "loyalty-rate-eligibility",
+            "id": "7a407f8a-f0e2-5c9e-8981-59db7e9e647e",
+            "metadata": {
+              "title": "Loyalty Rate Bonus — Eligibility",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.6327,
+            "text": "Term Deposit Interest Rates — 2026 Schedule (current)\n\nThe Young Savers bonus (`account-types.md`) and the Loyalty Rate bonus\n(`loyalty-rate-eligibility.md`) both stack on top of the base rate shown above, applied at the\ntime of opening and fixed for the life of the deposit. See `loyalty-rate-eligibility.md` for\nwho qualifies for the Loyalty Rate bonus and its size — the base rate above is only part of\nwhat a loyalty customer actually earns.",
+            "index": 3,
+            "strategy": "heading",
+            "source": "interest-rate-table-2026",
+            "id": "c01e9a8f-e23f-54a9-8592-8c729d85439b",
+            "metadata": {
+              "title": "Term Deposit Interest Rates — 2026 Schedule (current)",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 2
+            }
+          }
+        ],
+        "dropped_below_threshold": 0,
+        "usage": {
+          "prompt_tokens": 881,
+          "completion_tokens": 893
+        }
+      }
+    },
+    {
+      "role": "user",
+      "text": "If I submit a withdrawal request on a notice account today, how many days' notice, and would that have differed in December 2025?"
+    },
+    {
+      "role": "bot",
+      "data": {
+        "answer": "If you submit a withdrawal request today it is subject to the current notice period: 45 calendar days from the date the withdrawal request is submitted. There is no way to expedite or waive that notice period [2][4].\n\nIn December 2025 the notice period was 30 calendar days under the earlier policy, and requests submitted before 2026‑01‑15 were honoured at 30 days; under the old (30‑day) procedure the countdown began when the request was confirmed (an incomplete request did not start the countdown) [1][4][3].",
+        "augmented": true,
+        "provider": "azure",
+        "model": "gpt-5-mini",
+        "agent": {
+          "name": "banccherul",
+          "display_name": "Banccherul",
+          "description": "The precise, professional banking assistant — the module's baseline behaviour.",
+          "mode": "local",
+          "temperature": 0.2,
+          "style_rules": [
+            "Answer in the same language as the user, precisely and professionally.",
+            "Two short paragraphs maximum unless asked for more.",
+            "If a question needs data you do not have, state exactly what is missing.",
+            "Never invent fees, rates, deadlines or policy details."
+          ]
+        },
+        "system_prompt": "You are Banccherul, the internal AI assistant of a retail bank. You help colleagues and customers with accurate, actionable answers about the bank's products, policies and procedures.\n\nStyle rules you must follow:\n- Answer in the same language as the user, precisely and professionally.\n- Two short paragraphs maximum unless asked for more.\n- If a question needs data you do not have, state exactly what is missing.\n- Never invent fees, rates, deadlines or policy details.\n\nYou are given CONTEXT passages retrieved from the bank's own documents. Base your answer on those passages. Cite the passages you use as [1], [2], … . If the passages do not contain what is needed, say so explicitly instead of inventing an answer.",
+        "prompt_sent": "CONTEXT — retrieved passages, most similar first:\n[1] (score 0.6771) Notice Savings Account — Withdrawal Notice Period (superseded)\n\nCustomers holding a notice savings account must give advance notice before withdrawing funds.\nUnder this (2025) policy, the required notice period is **30 calendar days** from the date the\nwithdrawal request is submitted, regardless of the amount requested.\n\n[2] (score 0.6756) Notice Savings Account — Withdrawal Notice Period (current)\n\n> **Current policy**, effective 2026-01-15. Replaces `notice-period-policy-v1.md`. The notice\n> period was extended from 30 to 45 days as part of the 2026 liquidity policy update.\n\nCustomers holding a notice savings account must give advance notice before withdrawing funds.\nUnder this (current) policy, the required notice period is **45 calendar days** from the date\nthe withdrawal request is submitted, regardless of the amount requested.\n\n[3] (score 0.6585) Notice Savings Account — Withdrawal Notice Period (superseded)\n\nA withdrawal request is submitted through the mobile app (Savings → notice account → \"Request\nwithdrawal\") or in branch. The 30-day countdown starts on the date the request is confirmed,\nnot the date it is initiated — an incomplete request (e.g., missing identity verification)\ndoes not start the countdown.\n\n[4] (score 0.6452) Notice Savings Account — Withdrawal Notice Period (current)\n\nThere is no way to expedite or waive the notice period under this policy, including for\nemergencies — this is unlike term deposits, which can always be broken early subject to\n`early-withdrawal-policy.md`.\n\nRequests submitted before 2026-01-15 under the old 30-day notice period were honoured at 30\ndays; only requests submitted on or after that date are subject to the new 45-day period.\n\nQUESTION:\nPrevious conversation:\nUser: What is the annual interest rate for a 12-month RON term deposit under the 2026 schedule?\nAssistant: The annual gross interest rate for a 12‑month RON term deposit under the 2026 schedule is 5.00% [1]. \n\nThis rate is a gross annual rate (before withholding tax); for 12‑month terms interest is paid at maturity [3][1].\n\nUser: How much does a paper monthly statement cost for a deposit account?\nAssistant: A paper monthly statement sent by post costs 8 RON per month [1].\n\nE‑statements delivered in the mobile app are free; fees are normally debited from the linked current account (or from the deposit principal if no current account is linked) and do not apply to customers flagged as vulnerable [1][3].\n\nUser: I qualify for the Loyalty Rate bonus — what total annual rate would I get on a 12-month EUR term deposit?\nAssistant: The Loyalty Rate bonus is a fixed +0.30 percentage points added to the base rate from the 2026 interest-rate table, applied at account opening and fixed for the term (re‑evaluated only at renewal) [2][4]. Note the Loyalty bonus does not apply to the Young Savers term deposit (Young Savers has its own fixed +0.20 pp bonus that cannot be combined) [3].\n\nThe passages you provided do not include the base annual rate for a 12‑month EUR term deposit from the 2026 interest‑rate table — I need that base rate (or the interest‑rate‑table‑2026.md entry for 12 months, EUR) to give the total. The total annual rate = (12‑month EUR base rate) + 0.30 percentage points; send the base rate and I will calculate the exact figure.\n\nUser: If I submit a withdrawal request on a notice account today, how many days' notice, and would that have differed in December 2025?",
+        "retrieved": [
+          {
+            "score": 0.6771,
+            "text": "Notice Savings Account — Withdrawal Notice Period (superseded)\n\nCustomers holding a notice savings account must give advance notice before withdrawing funds.\nUnder this (2025) policy, the required notice period is **30 calendar days** from the date the\nwithdrawal request is submitted, regardless of the amount requested.",
+            "index": 1,
+            "strategy": "heading",
+            "source": "notice-period-policy-v1",
+            "id": "ca8c0c6c-b64c-537b-8d83-f9fb4dca7e6e",
+            "metadata": {
+              "title": "Notice Savings Account — Withdrawal Notice Period (superseded)",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2025-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.6756,
+            "text": "Notice Savings Account — Withdrawal Notice Period (current)\n\n> **Current policy**, effective 2026-01-15. Replaces `notice-period-policy-v1.md`. The notice\n> period was extended from 30 to 45 days as part of the 2026 liquidity policy update.\n\nCustomers holding a notice savings account must give advance notice before withdrawing funds.\nUnder this (current) policy, the required notice period is **45 calendar days** from the date\nthe withdrawal request is submitted, regardless of the amount requested.",
+            "index": 0,
+            "strategy": "heading",
+            "source": "notice-period-policy-v2",
+            "id": "dcbd85ea-f1c7-5bfe-9e90-26c69a1836c2",
+            "metadata": {
+              "title": "Notice Savings Account — Withdrawal Notice Period (current)",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-15",
+              "version": 2
+            }
+          },
+          {
+            "score": 0.6585,
+            "text": "Notice Savings Account — Withdrawal Notice Period (superseded)\n\nA withdrawal request is submitted through the mobile app (Savings → notice account → \"Request\nwithdrawal\") or in branch. The 30-day countdown starts on the date the request is confirmed,\nnot the date it is initiated — an incomplete request (e.g., missing identity verification)\ndoes not start the countdown.",
+            "index": 2,
+            "strategy": "heading",
+            "source": "notice-period-policy-v1",
+            "id": "2ed3b855-e37a-5939-92f1-dfcf0142a82f",
+            "metadata": {
+              "title": "Notice Savings Account — Withdrawal Notice Period (superseded)",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2025-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.6452,
+            "text": "Notice Savings Account — Withdrawal Notice Period (current)\n\nThere is no way to expedite or waive the notice period under this policy, including for\nemergencies — this is unlike term deposits, which can always be broken early subject to\n`early-withdrawal-policy.md`.\n\nRequests submitted before 2026-01-15 under the old 30-day notice period were honoured at 30\ndays; only requests submitted on or after that date are subject to the new 45-day period.",
+            "index": 3,
+            "strategy": "heading",
+            "source": "notice-period-policy-v2",
+            "id": "9cd02d46-cb6b-51f4-9adb-20f63da45248",
+            "metadata": {
+              "title": "Notice Savings Account — Withdrawal Notice Period (current)",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-15",
+              "version": 2
+            }
+          }
+        ],
+        "dropped_below_threshold": 0,
+        "usage": {
+          "prompt_tokens": 965,
+          "completion_tokens": 1085
+        }
+      }
+    },
+    {
+      "role": "user",
+      "text": "10,000 RON 12-month deposit at the 2026 rate — withdraw early vs. wait to maturity, after tax?"
+    },
+    {
+      "role": "bot",
+      "data": {
+        "answer": "If you wait to maturity: the 12‑month RON rate is 5.00%, so on 10,000 RON you accrue 500 RON gross interest; 10% withholding tax (50 RON) is deducted and you receive 450 RON net, so total returned = 10,450 RON [4][1].\n\nIf you withdraw early: all accrued interest is forfeited and a 25 RON administrative fee is deducted from principal, so you would receive 10,000 − 25 = 9,975 RON (partial early withdrawal is not offered; closing the deposit breaks it in full) [2].",
+        "augmented": true,
+        "provider": "azure",
+        "model": "gpt-5-mini",
+        "agent": {
+          "name": "banccherul",
+          "display_name": "Banccherul",
+          "description": "The precise, professional banking assistant — the module's baseline behaviour.",
+          "mode": "local",
+          "temperature": 0.2,
+          "style_rules": [
+            "Answer in the same language as the user, precisely and professionally.",
+            "Two short paragraphs maximum unless asked for more.",
+            "If a question needs data you do not have, state exactly what is missing.",
+            "Never invent fees, rates, deadlines or policy details."
+          ]
+        },
+        "system_prompt": "You are Banccherul, the internal AI assistant of a retail bank. You help colleagues and customers with accurate, actionable answers about the bank's products, policies and procedures.\n\nStyle rules you must follow:\n- Answer in the same language as the user, precisely and professionally.\n- Two short paragraphs maximum unless asked for more.\n- If a question needs data you do not have, state exactly what is missing.\n- Never invent fees, rates, deadlines or policy details.\n\nYou are given CONTEXT passages retrieved from the bank's own documents. Base your answer on those passages. Cite the passages you use as [1], [2], … . If the passages do not contain what is needed, say so explicitly instead of inventing an answer.",
+        "prompt_sent": "CONTEXT — retrieved passages, most similar first:\n[1] (score 0.6715) Withholding Tax on Deposit Interest\n\n**Example.** A 12-month RON deposit earning 5.00% gross on a 10,000 RON principal accrues 500\nRON gross interest at maturity; 50 RON (10%) is withheld, and the customer receives 450 RON\nnet interest alongside the returned principal.\n\n[2] (score 0.6326) Early Withdrawal Policy\n\n- **Interest forfeiture.** All interest accrued since opening (or since the last renewal) is\n  forfeited. The customer receives back only the principal, minus the administrative fee\n  below. This applies regardless of currency or term.\n- **Administrative fee.** A flat fee of **25 RON** (or the equivalent of 5 EUR / 5 USD for\n  foreign-currency deposits) is deducted from the principal at the time of early withdrawal.\n- **Partial withdrawal.** Partial early withdrawal is not offered on term deposits — breaking\n  a deposit closes it in full. Customers who need part of the funds must close the whole\n  deposit.\n\n[3] (score 0.5928) Deposit Account Types — Young Savers term deposit\n\nRON only, for customers aged 14 to 25. Minimum opening amount is 200 RON. Pays the same base\nrate as the standard 12-month term deposit plus a fixed 0.20 percentage point bonus. Requires\na parent or legal guardian as co-holder for customers under 18.\n\n[4] (score 0.5824) Term Deposit Interest Rates — 2026 Schedule (current)\n\n| Term      | RON   | EUR   | USD   |\n|-----------|-------|-------|-------|\n| 1 month   | 3.50% | 1.40% | 1.60% |\n| 3 months  | 4.00% | 1.70% | 1.90% |\n| 6 months  | 4.50% | 2.00% | 2.20% |\n| 12 months | 5.00% | 2.30% | 2.50% |\n| 18 months | 4.80% | 2.20% | 2.40% |\n| 24 months | 4.60% | 2.10% | 2.30% |\n\nQUESTION:\nPrevious conversation:\nUser: How much does a paper monthly statement cost for a deposit account?\nAssistant: A paper monthly statement sent by post costs 8 RON per month [1].\n\nE‑statements delivered in the mobile app are free; fees are normally debited from the linked current account (or from the deposit principal if no current account is linked) and do not apply to customers flagged as vulnerable [1][3].\n\nUser: I qualify for the Loyalty Rate bonus — what total annual rate would I get on a 12-month EUR term deposit?\nAssistant: The Loyalty Rate bonus is a fixed +0.30 percentage points added to the base rate from the 2026 interest-rate table, applied at account opening and fixed for the term (re‑evaluated only at renewal) [2][4]. Note the Loyalty bonus does not apply to the Young Savers term deposit (Young Savers has its own fixed +0.20 pp bonus that cannot be combined) [3].\n\nThe passages you provided do not include the base annual rate for a 12‑month EUR term deposit from the 2026 interest‑rate table — I need that base rate (or the interest‑rate‑table‑2026.md entry for 12 months, EUR) to give the total. The total annual rate = (12‑month EUR base rate) + 0.30 percentage points; send the base rate and I will calculate the exact figure.\n\nUser: If I submit a withdrawal request on a notice account today, how many days' notice, and would that have differed in December 2025?\nAssistant: If you submit a withdrawal request today it is subject to the current notice period: 45 calendar days from the date the withdrawal request is submitted. There is no way to expedite or waive that notice period [2][4].\n\nIn December 2025 the notice period was 30 calendar days under the earlier policy, and requests submitted before 2026‑01‑15 were honoured at 30 days; under the old (30‑day) procedure the countdown began when the request was confirmed (an incomplete request did not start the countdown) [1][4][3].\n\nUser: 10,000 RON 12-month deposit at the 2026 rate — withdraw early vs. wait to maturity, after tax?",
+        "retrieved": [
+          {
+            "score": 0.6715,
+            "text": "Withholding Tax on Deposit Interest\n\n**Example.** A 12-month RON deposit earning 5.00% gross on a 10,000 RON principal accrues 500\nRON gross interest at maturity; 50 RON (10%) is withheld, and the customer receives 450 RON\nnet interest alongside the returned principal.",
+            "index": 2,
+            "strategy": "heading",
+            "source": "tax-on-interest",
+            "id": "213e07af-edb7-5ac4-a05d-99b0d628ff25",
+            "metadata": {
+              "title": "Withholding Tax on Deposit Interest",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.6326,
+            "text": "Early Withdrawal Policy\n\n- **Interest forfeiture.** All interest accrued since opening (or since the last renewal) is\n  forfeited. The customer receives back only the principal, minus the administrative fee\n  below. This applies regardless of currency or term.\n- **Administrative fee.** A flat fee of **25 RON** (or the equivalent of 5 EUR / 5 USD for\n  foreign-currency deposits) is deducted from the principal at the time of early withdrawal.\n- **Partial withdrawal.** Partial early withdrawal is not offered on term deposits — breaking\n  a deposit closes it in full. Customers who need part of the funds must close the whole\n  deposit.",
+            "index": 1,
+            "strategy": "heading",
+            "source": "early-withdrawal-policy",
+            "id": "d81b801c-fcb6-54f3-9b57-268c866b626c",
+            "metadata": {
+              "title": "Early Withdrawal Policy",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.5928,
+            "text": "Deposit Account Types — Young Savers term deposit\n\nRON only, for customers aged 14 to 25. Minimum opening amount is 200 RON. Pays the same base\nrate as the standard 12-month term deposit plus a fixed 0.20 percentage point bonus. Requires\na parent or legal guardian as co-holder for customers under 18.",
+            "index": 2,
+            "strategy": "heading",
+            "source": "account-types",
+            "id": "990024ca-0f87-5bd1-b921-2e0f5ac80512",
+            "metadata": {
+              "title": "Deposit Account Types",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.5824,
+            "text": "Term Deposit Interest Rates — 2026 Schedule (current)\n\n| Term      | RON   | EUR   | USD   |\n|-----------|-------|-------|-------|\n| 1 month   | 3.50% | 1.40% | 1.60% |\n| 3 months  | 4.00% | 1.70% | 1.90% |\n| 6 months  | 4.50% | 2.00% | 2.20% |\n| 12 months | 5.00% | 2.30% | 2.50% |\n| 18 months | 4.80% | 2.20% | 2.40% |\n| 24 months | 4.60% | 2.10% | 2.30% |",
+            "index": 1,
+            "strategy": "heading",
+            "source": "interest-rate-table-2026",
+            "id": "28ea46c7-28ac-5a99-9f62-e7861ad0cc25",
+            "metadata": {
+              "title": "Term Deposit Interest Rates — 2026 Schedule (current)",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 2
+            }
+          }
+        ],
+        "dropped_below_threshold": 0,
+        "usage": {
+          "prompt_tokens": 1146,
+          "completion_tokens": 784
+        }
+      }
+    },
+    {
+      "role": "user",
+      "text": "Joint deposit, \"any one signature\" — can my co-holder break it early without my consent, and what do we get back?"
+    },
+    {
+      "role": "bot",
+      "data": {
+        "answer": "Yes. If the joint term deposit was opened with an \"any one signature\" mandate, any single holder may request an early withdrawal without the other holder's consent, and the payout will be sent to the account’s registered linked current account regardless of who requested it [1][2].\n\nThe provided passages do not say what amount is paid on early withdrawal (for example whether accrued interest is paid or forfeited, or whether an administrative fee applies). To give the exact payout you need the bank’s early‑withdrawal/closing procedure (closing-early-procedure.md or the early-withdrawal-policy) or the deposit’s product rules (currency, term and product code); please provide that document or those details.",
+        "augmented": true,
+        "provider": "azure",
+        "model": "gpt-5-mini",
+        "agent": {
+          "name": "banccherul",
+          "display_name": "Banccherul",
+          "description": "The precise, professional banking assistant — the module's baseline behaviour.",
+          "mode": "local",
+          "temperature": 0.2,
+          "style_rules": [
+            "Answer in the same language as the user, precisely and professionally.",
+            "Two short paragraphs maximum unless asked for more.",
+            "If a question needs data you do not have, state exactly what is missing.",
+            "Never invent fees, rates, deadlines or policy details."
+          ]
+        },
+        "system_prompt": "You are Banccherul, the internal AI assistant of a retail bank. You help colleagues and customers with accurate, actionable answers about the bank's products, policies and procedures.\n\nStyle rules you must follow:\n- Answer in the same language as the user, precisely and professionally.\n- Two short paragraphs maximum unless asked for more.\n- If a question needs data you do not have, state exactly what is missing.\n- Never invent fees, rates, deadlines or policy details.\n\nYou are given CONTEXT passages retrieved from the bank's own documents. Base your answer on those passages. Cite the passages you use as [1], [2], … . If the passages do not contain what is needed, say so explicitly instead of inventing an answer.",
+        "prompt_sent": "CONTEXT — retrieved passages, most similar first:\n[1] (score 0.6483) Joint Term Deposit Accounts — Rules — Early withdrawal\n\nUnder an \"any one signature\" mandate, any single holder can request early withdrawal per\n`closing-early-procedure.md`, and the payout goes to the account's registered linked current\naccount regardless of which holder requested it. Under \"all signatures,\" every holder must\nconfirm before the withdrawal is processed.\n\n[2] (score 0.6119) Joint Term Deposit Accounts — Rules — Operating mandate\n\nAt opening, holders choose either \"any one signature\" (any holder can instruct withdrawals or\nclosure alone) or \"all signatures\" (every holder must agree). This choice cannot be changed\nafter opening without closing and reopening the deposit.\n\n[3] (score 0.5948) Joint Term Deposit Accounts — Rules — Death of a holder\n\nIf one joint holder dies, the deposit does not automatically transfer to the surviving holders\n— it is frozen pending an inheritance procedure, handled in branch with the estate's\ndocumentation. This differs from the exception described in `early-withdrawal-policy.md`,\nwhich covers the deposit of a sole holder.\n\n[4] (score 0.5312) Joint Term Deposit Accounts — Rules — Opening\n\nAll joint holders must be present (in branch) or must each separately confirm through the app\n(for digital joint accounts) at the time of opening. A joint deposit cannot be opened by one\nholder acting alone, even with power of attorney, unless that power of attorney explicitly\ncovers deposit accounts.\n\nQUESTION:\nPrevious conversation:\nUser: I qualify for the Loyalty Rate bonus — what total annual rate would I get on a 12-month EUR term deposit?\nAssistant: The Loyalty Rate bonus is a fixed +0.30 percentage points added to the base rate from the 2026 interest-rate table, applied at account opening and fixed for the term (re‑evaluated only at renewal) [2][4]. Note the Loyalty bonus does not apply to the Young Savers term deposit (Young Savers has its own fixed +0.20 pp bonus that cannot be combined) [3].\n\nThe passages you provided do not include the base annual rate for a 12‑month EUR term deposit from the 2026 interest‑rate table — I need that base rate (or the interest‑rate‑table‑2026.md entry for 12 months, EUR) to give the total. The total annual rate = (12‑month EUR base rate) + 0.30 percentage points; send the base rate and I will calculate the exact figure.\n\nUser: If I submit a withdrawal request on a notice account today, how many days' notice, and would that have differed in December 2025?\nAssistant: If you submit a withdrawal request today it is subject to the current notice period: 45 calendar days from the date the withdrawal request is submitted. There is no way to expedite or waive that notice period [2][4].\n\nIn December 2025 the notice period was 30 calendar days under the earlier policy, and requests submitted before 2026‑01‑15 were honoured at 30 days; under the old (30‑day) procedure the countdown began when the request was confirmed (an incomplete request did not start the countdown) [1][4][3].\n\nUser: 10,000 RON 12-month deposit at the 2026 rate — withdraw early vs. wait to maturity, after tax?\nAssistant: If you wait to maturity: the 12‑month RON rate is 5.00%, so on 10,000 RON you accrue 500 RON gross interest; 10% withholding tax (50 RON) is deducted and you receive 450 RON net, so total returned = 10,450 RON [4][1].\n\nIf you withdraw early: all accrued interest is forfeited and a 25 RON administrative fee is deducted from principal, so you would receive 10,000 − 25 = 9,975 RON (partial early withdrawal is not offered; closing the deposit breaks it in full) [2].\n\nUser: Joint deposit, \"any one signature\" — can my co-holder break it early without my consent, and what do we get back?",
+        "retrieved": [
+          {
+            "score": 0.6483,
+            "text": "Joint Term Deposit Accounts — Rules — Early withdrawal\n\nUnder an \"any one signature\" mandate, any single holder can request early withdrawal per\n`closing-early-procedure.md`, and the payout goes to the account's registered linked current\naccount regardless of which holder requested it. Under \"all signatures,\" every holder must\nconfirm before the withdrawal is processed.",
+            "index": 3,
+            "strategy": "heading",
+            "source": "joint-account-rules",
+            "id": "bc0bd395-13e7-5cf2-a980-0fc187e7576a",
+            "metadata": {
+              "title": "Joint Term Deposit Accounts — Rules",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.6119,
+            "text": "Joint Term Deposit Accounts — Rules — Operating mandate\n\nAt opening, holders choose either \"any one signature\" (any holder can instruct withdrawals or\nclosure alone) or \"all signatures\" (every holder must agree). This choice cannot be changed\nafter opening without closing and reopening the deposit.",
+            "index": 2,
+            "strategy": "heading",
+            "source": "joint-account-rules",
+            "id": "8fef0d4a-6cc1-5c0b-a6c4-a18269ea690c",
+            "metadata": {
+              "title": "Joint Term Deposit Accounts — Rules",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.5948,
+            "text": "Joint Term Deposit Accounts — Rules — Death of a holder\n\nIf one joint holder dies, the deposit does not automatically transfer to the surviving holders\n— it is frozen pending an inheritance procedure, handled in branch with the estate's\ndocumentation. This differs from the exception described in `early-withdrawal-policy.md`,\nwhich covers the deposit of a sole holder.",
+            "index": 4,
+            "strategy": "heading",
+            "source": "joint-account-rules",
+            "id": "43662ac3-f9dc-52f4-a7d2-1d7f9b1683cd",
+            "metadata": {
+              "title": "Joint Term Deposit Accounts — Rules",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.5312,
+            "text": "Joint Term Deposit Accounts — Rules — Opening\n\nAll joint holders must be present (in branch) or must each separately confirm through the app\n(for digital joint accounts) at the time of opening. A joint deposit cannot be opened by one\nholder acting alone, even with power of attorney, unless that power of attorney explicitly\ncovers deposit accounts.",
+            "index": 1,
+            "strategy": "heading",
+            "source": "joint-account-rules",
+            "id": "c9765004-2214-58e1-a0b3-25280173132d",
+            "metadata": {
+              "title": "Joint Term Deposit Accounts — Rules",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          }
+        ],
+        "dropped_below_threshold": 0,
+        "usage": {
+          "prompt_tokens": 1039,
+          "completion_tokens": 985
+        }
+      }
+    },
+    {
+      "role": "user",
+      "text": "Young Savers deposit matures with no maturity instruction chosen — what happens, and does it get the Loyalty Rate too?"
+    },
+    {
+      "role": "bot",
+      "data": {
+        "answer": "If no maturity instruction was chosen, the deposit will follow the default auto‑renew rule: at maturity the principal plus any interest earned is placed into a new deposit of the same term at whatever the current base rate is on the renewal date (not the original rate) [3]. \n\nThe Young Savers term has its own fixed 0.20 percentage‑point bonus and the Loyalty Rate bonus does not apply to Young Savers (it cannot be combined) — Loyalty Rate bonuses are otherwise re‑evaluated at renewal, but that bonus is excluded for Young Savers [2][3].",
+        "augmented": true,
+        "provider": "azure",
+        "model": "gpt-5-mini",
+        "agent": {
+          "name": "banccherul",
+          "display_name": "Banccherul",
+          "description": "The precise, professional banking assistant — the module's baseline behaviour.",
+          "mode": "local",
+          "temperature": 0.2,
+          "style_rules": [
+            "Answer in the same language as the user, precisely and professionally.",
+            "Two short paragraphs maximum unless asked for more.",
+            "If a question needs data you do not have, state exactly what is missing.",
+            "Never invent fees, rates, deadlines or policy details."
+          ]
+        },
+        "system_prompt": "You are Banccherul, the internal AI assistant of a retail bank. You help colleagues and customers with accurate, actionable answers about the bank's products, policies and procedures.\n\nStyle rules you must follow:\n- Answer in the same language as the user, precisely and professionally.\n- Two short paragraphs maximum unless asked for more.\n- If a question needs data you do not have, state exactly what is missing.\n- Never invent fees, rates, deadlines or policy details.\n\nYou are given CONTEXT passages retrieved from the bank's own documents. Base your answer on those passages. Cite the passages you use as [1], [2], … . If the passages do not contain what is needed, say so explicitly instead of inventing an answer.",
+        "prompt_sent": "CONTEXT — retrieved passages, most similar first:\n[1] (score 0.6263) Term Deposit Interest Rates — 2026 Schedule (current)\n\nThe Young Savers bonus (`account-types.md`) and the Loyalty Rate bonus\n(`loyalty-rate-eligibility.md`) both stack on top of the base rate shown above, applied at the\ntime of opening and fixed for the life of the deposit. See `loyalty-rate-eligibility.md` for\nwho qualifies for the Loyalty Rate bonus and its size — the base rate above is only part of\nwhat a loyalty customer actually earns.\n\n[2] (score 0.6167) Loyalty Rate Bonus — Eligibility\n\nThe bonus does not apply to the Young Savers term deposit, which has its own fixed 0.20\npercentage point bonus that cannot be combined with the Loyalty Rate.\n\nBranch staff can check eligibility in the customer's profile under \"Relationship tenure\" and\n\"Active products.\" The bonus must be applied manually at account opening — it is not\ncalculated automatically by the core banking system as of this document's effective date.\n\n[3] (score 0.595) Automatic Renewal (Roll-Over) at Maturity\n\n**Auto-renew (default for most customers).** At maturity, the principal plus any interest\nearned is placed into a new deposit of the same term, at whatever the current base rate is on\nthe renewal date — not the rate the original deposit was opened at. Any Loyalty Rate bonus is\nre-evaluated at renewal, using the eligibility rules in `loyalty-rate-eligibility.md` as they\nstand on the renewal date, not the original opening date. A customer who lost eligibility\n(e.g., closed their other Libra Bank product) will renew at the base rate without the bonus.\n\n[4] (score 0.575) Automatic Renewal (Roll-Over) at Maturity\n\nCustomers choose their maturity instruction when opening a term deposit (see step 6 of\n`opening-procedure.md`). This document describes what happens under each instruction.\n\nQUESTION:\nPrevious conversation:\nUser: If I submit a withdrawal request on a notice account today, how many days' notice, and would that have differed in December 2025?\nAssistant: If you submit a withdrawal request today it is subject to the current notice period: 45 calendar days from the date the withdrawal request is submitted. There is no way to expedite or waive that notice period [2][4].\n\nIn December 2025 the notice period was 30 calendar days under the earlier policy, and requests submitted before 2026‑01‑15 were honoured at 30 days; under the old (30‑day) procedure the countdown began when the request was confirmed (an incomplete request did not start the countdown) [1][4][3].\n\nUser: 10,000 RON 12-month deposit at the 2026 rate — withdraw early vs. wait to maturity, after tax?\nAssistant: If you wait to maturity: the 12‑month RON rate is 5.00%, so on 10,000 RON you accrue 500 RON gross interest; 10% withholding tax (50 RON) is deducted and you receive 450 RON net, so total returned = 10,450 RON [4][1].\n\nIf you withdraw early: all accrued interest is forfeited and a 25 RON administrative fee is deducted from principal, so you would receive 10,000 − 25 = 9,975 RON (partial early withdrawal is not offered; closing the deposit breaks it in full) [2].\n\nUser: Joint deposit, \"any one signature\" — can my co-holder break it early without my consent, and what do we get back?\nAssistant: Yes. If the joint term deposit was opened with an \"any one signature\" mandate, any single holder may request an early withdrawal without the other holder's consent, and the payout will be sent to the account’s registered linked current account regardless of who requested it [1][2].\n\nThe provided passages do not say what amount is paid on early withdrawal (for example whether accrued interest is paid or forfeited, or whether an administrative fee applies). To give the exact payout you need the bank’s early‑withdrawal/closing procedure (closing-early-procedure.md or the early-withdrawal-policy) or the deposit’s product rules (currency, term and product code); please provide that document or those details.\n\nUser: Young Savers deposit matures with no maturity instruction chosen — what happens, and does it get the Loyalty Rate too?",
+        "retrieved": [
+          {
+            "score": 0.6263,
+            "text": "Term Deposit Interest Rates — 2026 Schedule (current)\n\nThe Young Savers bonus (`account-types.md`) and the Loyalty Rate bonus\n(`loyalty-rate-eligibility.md`) both stack on top of the base rate shown above, applied at the\ntime of opening and fixed for the life of the deposit. See `loyalty-rate-eligibility.md` for\nwho qualifies for the Loyalty Rate bonus and its size — the base rate above is only part of\nwhat a loyalty customer actually earns.",
+            "index": 3,
+            "strategy": "heading",
+            "source": "interest-rate-table-2026",
+            "id": "c01e9a8f-e23f-54a9-8592-8c729d85439b",
+            "metadata": {
+              "title": "Term Deposit Interest Rates — 2026 Schedule (current)",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 2
+            }
+          },
+          {
+            "score": 0.6167,
+            "text": "Loyalty Rate Bonus — Eligibility\n\nThe bonus does not apply to the Young Savers term deposit, which has its own fixed 0.20\npercentage point bonus that cannot be combined with the Loyalty Rate.\n\nBranch staff can check eligibility in the customer's profile under \"Relationship tenure\" and\n\"Active products.\" The bonus must be applied manually at account opening — it is not\ncalculated automatically by the core banking system as of this document's effective date.",
+            "index": 3,
+            "strategy": "heading",
+            "source": "loyalty-rate-eligibility",
+            "id": "7a407f8a-f0e2-5c9e-8981-59db7e9e647e",
+            "metadata": {
+              "title": "Loyalty Rate Bonus — Eligibility",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.595,
+            "text": "Automatic Renewal (Roll-Over) at Maturity\n\n**Auto-renew (default for most customers).** At maturity, the principal plus any interest\nearned is placed into a new deposit of the same term, at whatever the current base rate is on\nthe renewal date — not the rate the original deposit was opened at. Any Loyalty Rate bonus is\nre-evaluated at renewal, using the eligibility rules in `loyalty-rate-eligibility.md` as they\nstand on the renewal date, not the original opening date. A customer who lost eligibility\n(e.g., closed their other Libra Bank product) will renew at the base rate without the bonus.",
+            "index": 1,
+            "strategy": "heading",
+            "source": "auto-renewal-policy",
+            "id": "ec3e6f3b-1331-546d-97e4-a3e624e04d04",
+            "metadata": {
+              "title": "Automatic Renewal (Roll-Over) at Maturity",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.575,
+            "text": "Automatic Renewal (Roll-Over) at Maturity\n\nCustomers choose their maturity instruction when opening a term deposit (see step 6 of\n`opening-procedure.md`). This document describes what happens under each instruction.",
+            "index": 0,
+            "strategy": "heading",
+            "source": "auto-renewal-policy",
+            "id": "0e7973b0-07af-5b2f-b5a2-c9408eadadcd",
+            "metadata": {
+              "title": "Automatic Renewal (Roll-Over) at Maturity",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          }
+        ],
+        "dropped_below_threshold": 0,
+        "usage": {
+          "prompt_tokens": 1104,
+          "completion_tokens": 769
+        }
+      }
+    },
+    {
+      "role": "user",
+      "text": "What is the interest rate on your student loans?"
+    },
+    {
+      "role": "bot",
+      "data": {
+        "answer": "The documents you supplied only cover term deposits (rates table and Young Savers / Loyalty Rate rules) and do not include any student‑loan interest rates or loan product terms [3][1]. I cannot state a student‑loan rate from the current context.\n\nTo give an exact rate, I need the bank’s student‑loan rate schedule or the specific product name/code (or your loan account type). Please provide the student‑loan rate document (e.g. “student-loans-interest-rates.md”) or tell me which student loan product you mean, and I’ll look up the applicable rate.",
+        "augmented": true,
+        "provider": "azure",
+        "model": "gpt-5-mini",
+        "agent": {
+          "name": "banccherul",
+          "display_name": "Banccherul",
+          "description": "The precise, professional banking assistant — the module's baseline behaviour.",
+          "mode": "local",
+          "temperature": 0.2,
+          "style_rules": [
+            "Answer in the same language as the user, precisely and professionally.",
+            "Two short paragraphs maximum unless asked for more.",
+            "If a question needs data you do not have, state exactly what is missing.",
+            "Never invent fees, rates, deadlines or policy details."
+          ]
+        },
+        "system_prompt": "You are Banccherul, the internal AI assistant of a retail bank. You help colleagues and customers with accurate, actionable answers about the bank's products, policies and procedures.\n\nStyle rules you must follow:\n- Answer in the same language as the user, precisely and professionally.\n- Two short paragraphs maximum unless asked for more.\n- If a question needs data you do not have, state exactly what is missing.\n- Never invent fees, rates, deadlines or policy details.\n\nYou are given CONTEXT passages retrieved from the bank's own documents. Base your answer on those passages. Cite the passages you use as [1], [2], … . If the passages do not contain what is needed, say so explicitly instead of inventing an answer.",
+        "prompt_sent": "CONTEXT — retrieved passages, most similar first:\n[1] (score 0.4557) Term Deposit Interest Rates — 2026 Schedule (current)\n\nThe Young Savers bonus (`account-types.md`) and the Loyalty Rate bonus\n(`loyalty-rate-eligibility.md`) both stack on top of the base rate shown above, applied at the\ntime of opening and fixed for the life of the deposit. See `loyalty-rate-eligibility.md` for\nwho qualifies for the Loyalty Rate bonus and its size — the base rate above is only part of\nwhat a loyalty customer actually earns.\n\n[2] (score 0.4455) Term Deposit Interest Rates — 2026 Schedule (current)\n\nRates are gross annual rates, before withholding tax (see `tax-on-interest.md`). Interest is\npaid at maturity for terms up to 12 months, and annually for terms above 12 months.\n\n[3] (score 0.4236) Term Deposit Interest Rates — 2026 Schedule (current)\n\n| Term      | RON   | EUR   | USD   |\n|-----------|-------|-------|-------|\n| 1 month   | 3.50% | 1.40% | 1.60% |\n| 3 months  | 4.00% | 1.70% | 1.90% |\n| 6 months  | 4.50% | 2.00% | 2.20% |\n| 12 months | 5.00% | 2.30% | 2.50% |\n| 18 months | 4.80% | 2.20% | 2.40% |\n| 24 months | 4.60% | 2.10% | 2.30% |\n\n[4] (score 0.4195) Term Deposit Interest Rates — 2026 Schedule (current)\n\n> **Current schedule**, effective 2026-01-01. Replaces `interest-rate-table-2025.md`. Rates\n> rose across all terms and currencies compared to 2025, reflecting the higher policy rate.\n\nAnnual interest rates for standard term deposits, 2026 schedule:\n\nQUESTION:\nPrevious conversation:\nUser: 10,000 RON 12-month deposit at the 2026 rate — withdraw early vs. wait to maturity, after tax?\nAssistant: If you wait to maturity: the 12‑month RON rate is 5.00%, so on 10,000 RON you accrue 500 RON gross interest; 10% withholding tax (50 RON) is deducted and you receive 450 RON net, so total returned = 10,450 RON [4][1].\n\nIf you withdraw early: all accrued interest is forfeited and a 25 RON administrative fee is deducted from principal, so you would receive 10,000 − 25 = 9,975 RON (partial early withdrawal is not offered; closing the deposit breaks it in full) [2].\n\nUser: Joint deposit, \"any one signature\" — can my co-holder break it early without my consent, and what do we get back?\nAssistant: Yes. If the joint term deposit was opened with an \"any one signature\" mandate, any single holder may request an early withdrawal without the other holder's consent, and the payout will be sent to the account’s registered linked current account regardless of who requested it [1][2].\n\nThe provided passages do not say what amount is paid on early withdrawal (for example whether accrued interest is paid or forfeited, or whether an administrative fee applies). To give the exact payout you need the bank’s early‑withdrawal/closing procedure (closing-early-procedure.md or the early-withdrawal-policy) or the deposit’s product rules (currency, term and product code); please provide that document or those details.\n\nUser: Young Savers deposit matures with no maturity instruction chosen — what happens, and does it get the Loyalty Rate too?\nAssistant: If no maturity instruction was chosen, the deposit will follow the default auto‑renew rule: at maturity the principal plus any interest earned is placed into a new deposit of the same term at whatever the current base rate is on the renewal date (not the original rate) [3]. \n\nThe Young Savers term has its own fixed 0.20 percentage‑point bonus and the Loyalty Rate bonus does not apply to Young Savers (it cannot be combined) — Loyalty Rate bonuses are otherwise re‑evaluated at renewal, but that bonus is excluded for Young Savers [2][3].\n\nUser: What is the interest rate on your student loans?",
+        "retrieved": [
+          {
+            "score": 0.4557,
+            "text": "Term Deposit Interest Rates — 2026 Schedule (current)\n\nThe Young Savers bonus (`account-types.md`) and the Loyalty Rate bonus\n(`loyalty-rate-eligibility.md`) both stack on top of the base rate shown above, applied at the\ntime of opening and fixed for the life of the deposit. See `loyalty-rate-eligibility.md` for\nwho qualifies for the Loyalty Rate bonus and its size — the base rate above is only part of\nwhat a loyalty customer actually earns.",
+            "index": 3,
+            "strategy": "heading",
+            "source": "interest-rate-table-2026",
+            "id": "c01e9a8f-e23f-54a9-8592-8c729d85439b",
+            "metadata": {
+              "title": "Term Deposit Interest Rates — 2026 Schedule (current)",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 2
+            }
+          },
+          {
+            "score": 0.4455,
+            "text": "Term Deposit Interest Rates — 2026 Schedule (current)\n\nRates are gross annual rates, before withholding tax (see `tax-on-interest.md`). Interest is\npaid at maturity for terms up to 12 months, and annually for terms above 12 months.",
+            "index": 2,
+            "strategy": "heading",
+            "source": "interest-rate-table-2026",
+            "id": "94899dc8-2b81-5dad-b3dd-50135e638864",
+            "metadata": {
+              "title": "Term Deposit Interest Rates — 2026 Schedule (current)",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 2
+            }
+          },
+          {
+            "score": 0.4236,
+            "text": "Term Deposit Interest Rates — 2026 Schedule (current)\n\n| Term      | RON   | EUR   | USD   |\n|-----------|-------|-------|-------|\n| 1 month   | 3.50% | 1.40% | 1.60% |\n| 3 months  | 4.00% | 1.70% | 1.90% |\n| 6 months  | 4.50% | 2.00% | 2.20% |\n| 12 months | 5.00% | 2.30% | 2.50% |\n| 18 months | 4.80% | 2.20% | 2.40% |\n| 24 months | 4.60% | 2.10% | 2.30% |",
+            "index": 1,
+            "strategy": "heading",
+            "source": "interest-rate-table-2026",
+            "id": "28ea46c7-28ac-5a99-9f62-e7861ad0cc25",
+            "metadata": {
+              "title": "Term Deposit Interest Rates — 2026 Schedule (current)",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 2
+            }
+          },
+          {
+            "score": 0.4195,
+            "text": "Term Deposit Interest Rates — 2026 Schedule (current)\n\n> **Current schedule**, effective 2026-01-01. Replaces `interest-rate-table-2025.md`. Rates\n> rose across all terms and currencies compared to 2025, reflecting the higher policy rate.\n\nAnnual interest rates for standard term deposits, 2026 schedule:",
+            "index": 0,
+            "strategy": "heading",
+            "source": "interest-rate-table-2026",
+            "id": "8d0c5fa7-6d99-57fe-82bf-3c3b0b054c17",
+            "metadata": {
+              "title": "Term Deposit Interest Rates — 2026 Schedule (current)",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 2
+            }
+          }
+        ],
+        "dropped_below_threshold": 0,
+        "usage": {
+          "prompt_tokens": 1121,
+          "completion_tokens": 643
+        }
+      }
+    },
+    {
+      "role": "user",
+      "text": "Can I open a term deposit in Bitcoin or another cryptocurrency?"
+    },
+    {
+      "role": "bot",
+      "data": {
+        "answer": "The term‑deposit documents you supplied show available currencies as RON, EUR or USD and do not mention Bitcoin or any cryptocurrency as an option for opening a term deposit [3]. Based on these passages I cannot confirm that the bank supports crypto‑currency term deposits.\n\nTo answer definitively I need a bank document that explicitly covers allowed deposit currencies or any crypto product rules (for example a “deposit‑currencies.md”, “product‑catalogue.md” or a specific crypto‑product policy). Please provide that document or ask me to check with branch/operations.",
+        "augmented": true,
+        "provider": "azure",
+        "model": "gpt-5-mini",
+        "agent": {
+          "name": "banccherul",
+          "display_name": "Banccherul",
+          "description": "The precise, professional banking assistant — the module's baseline behaviour.",
+          "mode": "local",
+          "temperature": 0.2,
+          "style_rules": [
+            "Answer in the same language as the user, precisely and professionally.",
+            "Two short paragraphs maximum unless asked for more.",
+            "If a question needs data you do not have, state exactly what is missing.",
+            "Never invent fees, rates, deadlines or policy details."
+          ]
+        },
+        "system_prompt": "You are Banccherul, the internal AI assistant of a retail bank. You help colleagues and customers with accurate, actionable answers about the bank's products, policies and procedures.\n\nStyle rules you must follow:\n- Answer in the same language as the user, precisely and professionally.\n- Two short paragraphs maximum unless asked for more.\n- If a question needs data you do not have, state exactly what is missing.\n- Never invent fees, rates, deadlines or policy details.\n\nYou are given CONTEXT passages retrieved from the bank's own documents. Base your answer on those passages. Cite the passages you use as [1], [2], … . If the passages do not contain what is needed, say so explicitly instead of inventing an answer.",
+        "prompt_sent": "CONTEXT — retrieved passages, most similar first:\n[1] (score 0.5755) How to Open a Term Deposit — Step by Step\n\nThis is the full procedure for opening a standard term deposit, valid for the mobile app,\nonline banking and branch channels unless a step says otherwise.\n\n[2] (score 0.5652) How to Open a Term Deposit — Step by Step\n\nThe whole process takes under five minutes in the app for an existing customer, or about\nfifteen minutes in branch for a first-time depositor.\n\n[3] (score 0.5286) How to Open a Term Deposit — Step by Step\n\n1. **Confirm eligibility.** The customer must be 18 or over (or use the Young Savers product,\n   see `account-types.md`) and hold an active Libra Bank current account in the currency they\n   want to deposit in, or be willing to open one first.\n2. **Choose the product.** Select currency (RON, EUR or USD) and term (1, 3, 6, 12, 18 or 24\n   months). The interest rate shown at this step is always the current base rate from\n   `interest-rate-table-2026.md` — bonuses are applied in step 5.\n3. **Enter the amount.** Minimum 1,000 RON or equivalent for the standard product, 200 RON for\n   Young Savers. The app will reject amounts below the minimum with an explanation.\n4. **Choose the funding source.** Funds are debited immediately from the linked current\n   account. Funding from a third-party account is not supported in the app; it requires a\n   branch visit with a wire transfer.\n5. **Loyalty check.** The system (or branch staff, per `loyalty-rate-eligibility.md`) checks\n   whether the customer qualifies for the Loyalty Rate bonus, and if so applies it before\n   showing the final confirmed rate.\n6. **Choose the maturity instruction.** The customer selects what happens at maturity:\n   auto-renew (see `auto-renewal-policy.md`), pay out to the linked current account, or pay\n   out to a different IBAN (branch only, subject to the wire fee in `fee-schedule.md`).\n7. **Review and confirm.** The app or branch officer shows the final rate, maturity date, and\n   maturity instruction for confirmation. In the app, confirmation requires the mobile PIN or\n   biometric authentication.\n8. **Receive the contract.** A digital contract is issued immediately in the app, or a paper\n   contract in branch (duplicate copies cost 10 RON per `fee-schedule.md`).\n\n[4] (score 0.5161) Savings and Term Deposits — Product Overview\n\nA **term deposit** locks a fixed sum for a fixed period (one month to two years) at a fixed\ninterest rate agreed at opening. It pays the highest rates of the three, in exchange for\nreduced flexibility: breaking it early forfeits interest and may incur a fee (see\n`early-withdrawal-policy.md`).\n\nQUESTION:\nPrevious conversation:\nUser: Joint deposit, \"any one signature\" — can my co-holder break it early without my consent, and what do we get back?\nAssistant: Yes. If the joint term deposit was opened with an \"any one signature\" mandate, any single holder may request an early withdrawal without the other holder's consent, and the payout will be sent to the account’s registered linked current account regardless of who requested it [1][2].\n\nThe provided passages do not say what amount is paid on early withdrawal (for example whether accrued interest is paid or forfeited, or whether an administrative fee applies). To give the exact payout you need the bank’s early‑withdrawal/closing procedure (closing-early-procedure.md or the early-withdrawal-policy) or the deposit’s product rules (currency, term and product code); please provide that document or those details.\n\nUser: Young Savers deposit matures with no maturity instruction chosen — what happens, and does it get the Loyalty Rate too?\nAssistant: If no maturity instruction was chosen, the deposit will follow the default auto‑renew rule: at maturity the principal plus any interest earned is placed into a new deposit of the same term at whatever the current base rate is on the renewal date (not the original rate) [3]. \n\nThe Young Savers term has its own fixed 0.20 percentage‑point bonus and the Loyalty Rate bonus does not apply to Young Savers (it cannot be combined) — Loyalty Rate bonuses are otherwise re‑evaluated at renewal, but that bonus is excluded for Young Savers [2][3].\n\nUser: What is the interest rate on your student loans?\nAssistant: The documents you supplied only cover term deposits (rates table and Young Savers / Loyalty Rate rules) and do not include any student‑loan interest rates or loan product terms [3][1]. I cannot state a student‑loan rate from the current context.\n\nTo give an exact rate, I need the bank’s student‑loan rate schedule or the specific product name/code (or your loan account type). Please provide the student‑loan rate document (e.g. “student-loans-interest-rates.md”) or tell me which student loan product you mean, and I’ll look up the applicable rate.\n\nUser: Can I open a term deposit in Bitcoin or another cryptocurrency?",
+        "retrieved": [
+          {
+            "score": 0.5755,
+            "text": "How to Open a Term Deposit — Step by Step\n\nThis is the full procedure for opening a standard term deposit, valid for the mobile app,\nonline banking and branch channels unless a step says otherwise.",
+            "index": 0,
+            "strategy": "heading",
+            "source": "opening-procedure",
+            "id": "c8d227f3-623c-5ef2-9ec6-6a8f43f96515",
+            "metadata": {
+              "title": "How to Open a Term Deposit — Step by Step",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.5652,
+            "text": "How to Open a Term Deposit — Step by Step\n\nThe whole process takes under five minutes in the app for an existing customer, or about\nfifteen minutes in branch for a first-time depositor.",
+            "index": 2,
+            "strategy": "heading",
+            "source": "opening-procedure",
+            "id": "504fe464-87a0-529f-8273-2e6cfa44eb2d",
+            "metadata": {
+              "title": "How to Open a Term Deposit — Step by Step",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.5286,
+            "text": "How to Open a Term Deposit — Step by Step\n\n1. **Confirm eligibility.** The customer must be 18 or over (or use the Young Savers product,\n   see `account-types.md`) and hold an active Libra Bank current account in the currency they\n   want to deposit in, or be willing to open one first.\n2. **Choose the product.** Select currency (RON, EUR or USD) and term (1, 3, 6, 12, 18 or 24\n   months). The interest rate shown at this step is always the current base rate from\n   `interest-rate-table-2026.md` — bonuses are applied in step 5.\n3. **Enter the amount.** Minimum 1,000 RON or equivalent for the standard product, 200 RON for\n   Young Savers. The app will reject amounts below the minimum with an explanation.\n4. **Choose the funding source.** Funds are debited immediately from the linked current\n   account. Funding from a third-party account is not supported in the app; it requires a\n   branch visit with a wire transfer.\n5. **Loyalty check.** The system (or branch staff, per `loyalty-rate-eligibility.md`) checks\n   whether the customer qualifies for the Loyalty Rate bonus, and if so applies it before\n   showing the final confirmed rate.\n6. **Choose the maturity instruction.** The customer selects what happens at maturity:\n   auto-renew (see `auto-renewal-policy.md`), pay out to the linked current account, or pay\n   out to a different IBAN (branch only, subject to the wire fee in `fee-schedule.md`).\n7. **Review and confirm.** The app or branch officer shows the final rate, maturity date, and\n   maturity instruction for confirmation. In the app, confirmation requires the mobile PIN or\n   biometric authentication.\n8. **Receive the contract.** A digital contract is issued immediately in the app, or a paper\n   contract in branch (duplicate copies cost 10 RON per `fee-schedule.md`).",
+            "index": 1,
+            "strategy": "heading",
+            "source": "opening-procedure",
+            "id": "af15fbf2-1286-52fd-9062-4b637bc47ef5",
+            "metadata": {
+              "title": "How to Open a Term Deposit — Step by Step",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.5161,
+            "text": "Savings and Term Deposits — Product Overview\n\nA **term deposit** locks a fixed sum for a fixed period (one month to two years) at a fixed\ninterest rate agreed at opening. It pays the highest rates of the three, in exchange for\nreduced flexibility: breaking it early forfeits interest and may incur a fee (see\n`early-withdrawal-policy.md`).",
+            "index": 1,
+            "strategy": "heading",
+            "source": "00-overview",
+            "id": "9fd2b64c-88d5-55ef-8bec-617c4c720a24",
+            "metadata": {
+              "title": "Savings and Term Deposits — Product Overview",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          }
+        ],
+        "dropped_below_threshold": 0,
+        "usage": {
+          "prompt_tokens": 1291,
+          "completion_tokens": 507
+        }
+      }
+    },
+    {
+      "role": "user",
+      "text": "What is the early repayment fee for a mortgage held with Libra Bank?"
+    },
+    {
+      "role": "bot",
+      "data": {
+        "answer": "The documents you provided do not include any mortgage product terms or an early‑repayment fee for mortgages, so I cannot state the mortgage early‑repayment charge from the available context. The only early‑withdrawal fee shown in the supplied passages is a 25 RON administrative fee for deposit early withdrawals, which applies to deposit products (see Deposit Account Fee Schedule) [2].\n\nIf you need the exact mortgage early‑repayment fee, please provide the mortgage fee schedule or the mortgage product T&Cs (for example “mortgage-fees.md” or the specific mortgage product code/contract), or tell me whether the loan is a fixed‑rate or variable‑rate mortgage and its product name so I can look it up.",
+        "augmented": true,
+        "provider": "azure",
+        "model": "gpt-5-mini",
+        "agent": {
+          "name": "banccherul",
+          "display_name": "Banccherul",
+          "description": "The precise, professional banking assistant — the module's baseline behaviour.",
+          "mode": "local",
+          "temperature": 0.2,
+          "style_rules": [
+            "Answer in the same language as the user, precisely and professionally.",
+            "Two short paragraphs maximum unless asked for more.",
+            "If a question needs data you do not have, state exactly what is missing.",
+            "Never invent fees, rates, deadlines or policy details."
+          ]
+        },
+        "system_prompt": "You are Banccherul, the internal AI assistant of a retail bank. You help colleagues and customers with accurate, actionable answers about the bank's products, policies and procedures.\n\nStyle rules you must follow:\n- Answer in the same language as the user, precisely and professionally.\n- Two short paragraphs maximum unless asked for more.\n- If a question needs data you do not have, state exactly what is missing.\n- Never invent fees, rates, deadlines or policy details.\n\nYou are given CONTEXT passages retrieved from the bank's own documents. Base your answer on those passages. Cite the passages you use as [1], [2], … . If the passages do not contain what is needed, say so explicitly instead of inventing an answer.",
+        "prompt_sent": "CONTEXT — retrieved passages, most similar first:\n[1] (score 0.5658) Deposit Guarantee Scheme Coverage\n\nAll retail deposits at Libra Bank — including term deposits, notice savings accounts, and\ninstant-access savings accounts — are covered by the national Bank Deposit Guarantee Fund, up\nto the legal ceiling.\n\n[2] (score 0.5621) Deposit Account Fee Schedule — Fees\n\n| Fee                                   | Amount           | Notes                              |\n|----------------------------------------|------------------|-------------------------------------|\n| Account opening                        | Free             | Any channel                         |\n| Monthly statement (paper, by post)     | 8 RON            | E-statements are free               |\n| Monthly statement (electronic)         | Free             | Delivered in the mobile app         |\n| Early withdrawal administrative fee    | 25 RON           | See `early-withdrawal-policy.md`    |\n| Balance certificate (branch)           | 15 RON           | For visa, court or notary use       |\n| Balance certificate (mobile app)       | Free             | Self-service, instant               |\n| Deposit closure at maturity            | Free             | Any channel                         |\n| Duplicate contract copy                | 10 RON           | Branch only                         |\n| International wire on maturity payout  | 35 RON           | Only for payouts to non-Libra IBANs |\n\n[3] (score 0.5588) Loyalty Rate Bonus — Eligibility\n\n1. The customer has held an active Libra Bank current account for at least 12 consecutive\n   months.\n2. The customer has at least one other active product with Libra Bank — a credit card, a\n   mortgage, or a standing salary deposit into a Libra Bank current account.\n3. The term deposit being opened is for 6 months or longer.\n\n[4] (score 0.5353) Withholding Tax on Deposit Interest\n\nInterest earned on term deposits and notice savings accounts held by individual (non-business)\ncustomers is subject to withholding tax, deducted automatically by Libra Bank before the\ninterest is paid or added to the deposit.\n\nQUESTION:\nPrevious conversation:\nUser: Young Savers deposit matures with no maturity instruction chosen — what happens, and does it get the Loyalty Rate too?\nAssistant: If no maturity instruction was chosen, the deposit will follow the default auto‑renew rule: at maturity the principal plus any interest earned is placed into a new deposit of the same term at whatever the current base rate is on the renewal date (not the original rate) [3]. \n\nThe Young Savers term has its own fixed 0.20 percentage‑point bonus and the Loyalty Rate bonus does not apply to Young Savers (it cannot be combined) — Loyalty Rate bonuses are otherwise re‑evaluated at renewal, but that bonus is excluded for Young Savers [2][3].\n\nUser: What is the interest rate on your student loans?\nAssistant: The documents you supplied only cover term deposits (rates table and Young Savers / Loyalty Rate rules) and do not include any student‑loan interest rates or loan product terms [3][1]. I cannot state a student‑loan rate from the current context.\n\nTo give an exact rate, I need the bank’s student‑loan rate schedule or the specific product name/code (or your loan account type). Please provide the student‑loan rate document (e.g. “student-loans-interest-rates.md”) or tell me which student loan product you mean, and I’ll look up the applicable rate.\n\nUser: Can I open a term deposit in Bitcoin or another cryptocurrency?\nAssistant: The term‑deposit documents you supplied show available currencies as RON, EUR or USD and do not mention Bitcoin or any cryptocurrency as an option for opening a term deposit [3]. Based on these passages I cannot confirm that the bank supports crypto‑currency term deposits.\n\nTo answer definitively I need a bank document that explicitly covers allowed deposit currencies or any crypto product rules (for example a “deposit‑currencies.md”, “product‑catalogue.md” or a specific crypto‑product policy). Please provide that document or ask me to check with branch/operations.\n\nUser: What is the early repayment fee for a mortgage held with Libra Bank?",
+        "retrieved": [
+          {
+            "score": 0.5658,
+            "text": "Deposit Guarantee Scheme Coverage\n\nAll retail deposits at Libra Bank — including term deposits, notice savings accounts, and\ninstant-access savings accounts — are covered by the national Bank Deposit Guarantee Fund, up\nto the legal ceiling.",
+            "index": 0,
+            "strategy": "heading",
+            "source": "deposit-insurance-guarantee",
+            "id": "525d0a2d-cabc-505f-9b54-b613edb64ef1",
+            "metadata": {
+              "title": "Deposit Guarantee Scheme Coverage",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.5621,
+            "text": "Deposit Account Fee Schedule — Fees\n\n| Fee                                   | Amount           | Notes                              |\n|----------------------------------------|------------------|-------------------------------------|\n| Account opening                        | Free             | Any channel                         |\n| Monthly statement (paper, by post)     | 8 RON            | E-statements are free               |\n| Monthly statement (electronic)         | Free             | Delivered in the mobile app         |\n| Early withdrawal administrative fee    | 25 RON           | See `early-withdrawal-policy.md`    |\n| Balance certificate (branch)           | 15 RON           | For visa, court or notary use       |\n| Balance certificate (mobile app)       | Free             | Self-service, instant               |\n| Deposit closure at maturity            | Free             | Any channel                         |\n| Duplicate contract copy                | 10 RON           | Branch only                         |\n| International wire on maturity payout  | 35 RON           | Only for payouts to non-Libra IBANs |",
+            "index": 1,
+            "strategy": "heading",
+            "source": "fee-schedule",
+            "id": "7d0918b4-a5f1-5be2-9b03-b89136ce9d0a",
+            "metadata": {
+              "title": "Deposit Account Fee Schedule",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.5588,
+            "text": "Loyalty Rate Bonus — Eligibility\n\n1. The customer has held an active Libra Bank current account for at least 12 consecutive\n   months.\n2. The customer has at least one other active product with Libra Bank — a credit card, a\n   mortgage, or a standing salary deposit into a Libra Bank current account.\n3. The term deposit being opened is for 6 months or longer.",
+            "index": 1,
+            "strategy": "heading",
+            "source": "loyalty-rate-eligibility",
+            "id": "bf9ab98c-b32e-5f13-9df9-932c3b0187d7",
+            "metadata": {
+              "title": "Loyalty Rate Bonus — Eligibility",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          },
+          {
+            "score": 0.5353,
+            "text": "Withholding Tax on Deposit Interest\n\nInterest earned on term deposits and notice savings accounts held by individual (non-business)\ncustomers is subject to withholding tax, deducted automatically by Libra Bank before the\ninterest is paid or added to the deposit.",
+            "index": 0,
+            "strategy": "heading",
+            "source": "tax-on-interest",
+            "id": "45ceaf5c-ec29-569d-bbc3-f3825fecf5bb",
+            "metadata": {
+              "title": "Withholding Tax on Deposit Interest",
+              "product": "deposits",
+              "audience": "retail",
+              "effective": "2026-01-01",
+              "version": 1
+            }
+          }
+        ],
+        "dropped_below_threshold": 0,
+        "usage": {
+          "prompt_tokens": 1019,
+          "completion_tokens": 414
+        }
+      }
+    }
+  ],
+  "history": [
+    {
+      "q": "What is the minimum amount to open a standard term deposit?",
+      "a": "Minimum opening amount for a standard term deposit is 1,000 RON (or the equivalent amount in EUR or USD) [1]."
+    },
+    {
+      "q": "What fee applies if I withdraw from a term deposit before maturity?",
+      "a": "An administrative fee of 25 RON (or the equivalent of 5 EUR / 5 USD for foreign‑currency deposits) is deducted from the principal on early withdrawal, and all interest accrued since opening (or since the last renewal) is forfeited — the customer receives principal minus the fee [4].\n\nException: no fee or interest forfeiture applies if the withdrawal is due to the death of the account holder (verified by the estate) or a court order; these exceptions require a branch visit and cannot be processed through the mobile app or call centre [2]."
+    },
+    {
+      "q": "What is the deposit guarantee coverage limit at Libra Bank?",
+      "a": "The guarantee limit is 100,000 EUR equivalent per depositor, per bank — this applies regardless of currency, number of accounts or number of products (balances across accounts are added for the limit) [4].\n\nCoverage is provided by the national Bank Deposit Guarantee Fund and applies to principal plus interest accrued up to the date of a bank default; for joint accounts each holder is covered up to 100,000 EUR equivalent on their share combined with their other deposits at Libra Bank [1][2]."
+    },
+    {
+      "q": "What is the withholding tax rate on deposit interest?",
+      "a": "Withholding tax on deposit interest for individual customers is 10% of the gross interest; it is deducted automatically by Libra Bank at the moment interest is paid (at maturity for terms up to 12 months, or annually for longer terms) [1][4]. \n\nThis 10% rate applies uniformly across RON, EUR and USD deposits and across the bank’s retail deposit products; withholding treatment for business (legal‑entity) accounts differs and is not covered here [2]."
+    },
+    {
+      "q": "What is the current notice period for a notice savings account?",
+      "a": "The current notice period is 45 calendar days from the date the withdrawal request is submitted, regardless of the amount requested (policy effective 2026-01-15) [3].\n\nThere is no way to expedite or waive the 45-day notice; requests submitted before 2026-01-15 were honoured at the prior 30-day period. Once the notice period elapses, funds become available for transfer to the linked current account for 5 business days — if not withdrawn in that window the request expires and must be resubmitted [4][1]."
+    },
+    {
+      "q": "What is the annual interest rate for a 12-month RON term deposit under the 2026 schedule?",
+      "a": "The annual gross interest rate for a 12‑month RON term deposit under the 2026 schedule is 5.00% [1]. \n\nThis rate is a gross annual rate (before withholding tax); for 12‑month terms interest is paid at maturity [3][1]."
+    },
+    {
+      "q": "How much does a paper monthly statement cost for a deposit account?",
+      "a": "A paper monthly statement sent by post costs 8 RON per month [1].\n\nE‑statements delivered in the mobile app are free; fees are normally debited from the linked current account (or from the deposit principal if no current account is linked) and do not apply to customers flagged as vulnerable [1][3]."
+    },
+    {
+      "q": "I qualify for the Loyalty Rate bonus — what total annual rate would I get on a 12-month EUR term deposit?",
+      "a": "The Loyalty Rate bonus is a fixed +0.30 percentage points added to the base rate from the 2026 interest-rate table, applied at account opening and fixed for the term (re‑evaluated only at renewal) [2][4]. Note the Loyalty bonus does not apply to the Young Savers term deposit (Young Savers has its own fixed +0.20 pp bonus that cannot be combined) [3].\n\nThe passages you provided do not include the base annual rate for a 12‑month EUR term deposit from the 2026 interest‑rate table — I need that base rate (or the interest‑rate‑table‑2026.md entry for 12 months, EUR) to give the total. The total annual rate = (12‑month EUR base rate) + 0.30 percentage points; send the base rate and I will calculate the exact figure."
+    },
+    {
+      "q": "If I submit a withdrawal request on a notice account today, how many days' notice, and would that have differed in December 2025?",
+      "a": "If you submit a withdrawal request today it is subject to the current notice period: 45 calendar days from the date the withdrawal request is submitted. There is no way to expedite or waive that notice period [2][4].\n\nIn December 2025 the notice period was 30 calendar days under the earlier policy, and requests submitted before 2026‑01‑15 were honoured at 30 days; under the old (30‑day) procedure the countdown began when the request was confirmed (an incomplete request did not start the countdown) [1][4][3]."
+    },
+    {
+      "q": "10,000 RON 12-month deposit at the 2026 rate — withdraw early vs. wait to maturity, after tax?",
+      "a": "If you wait to maturity: the 12‑month RON rate is 5.00%, so on 10,000 RON you accrue 500 RON gross interest; 10% withholding tax (50 RON) is deducted and you receive 450 RON net, so total returned = 10,450 RON [4][1].\n\nIf you withdraw early: all accrued interest is forfeited and a 25 RON administrative fee is deducted from principal, so you would receive 10,000 − 25 = 9,975 RON (partial early withdrawal is not offered; closing the deposit breaks it in full) [2]."
+    },
+    {
+      "q": "Joint deposit, \"any one signature\" — can my co-holder break it early without my consent, and what do we get back?",
+      "a": "Yes. If the joint term deposit was opened with an \"any one signature\" mandate, any single holder may request an early withdrawal without the other holder's consent, and the payout will be sent to the account’s registered linked current account regardless of who requested it [1][2].\n\nThe provided passages do not say what amount is paid on early withdrawal (for example whether accrued interest is paid or forfeited, or whether an administrative fee applies). To give the exact payout you need the bank’s early‑withdrawal/closing procedure (closing-early-procedure.md or the early-withdrawal-policy) or the deposit’s product rules (currency, term and product code); please provide that document or those details."
+    },
+    {
+      "q": "Young Savers deposit matures with no maturity instruction chosen — what happens, and does it get the Loyalty Rate too?",
+      "a": "If no maturity instruction was chosen, the deposit will follow the default auto‑renew rule: at maturity the principal plus any interest earned is placed into a new deposit of the same term at whatever the current base rate is on the renewal date (not the original rate) [3]. \n\nThe Young Savers term has its own fixed 0.20 percentage‑point bonus and the Loyalty Rate bonus does not apply to Young Savers (it cannot be combined) — Loyalty Rate bonuses are otherwise re‑evaluated at renewal, but that bonus is excluded for Young Savers [2][3]."
+    },
+    {
+      "q": "What is the interest rate on your student loans?",
+      "a": "The documents you supplied only cover term deposits (rates table and Young Savers / Loyalty Rate rules) and do not include any student‑loan interest rates or loan product terms [3][1]. I cannot state a student‑loan rate from the current context.\n\nTo give an exact rate, I need the bank’s student‑loan rate schedule or the specific product name/code (or your loan account type). Please provide the student‑loan rate document (e.g. “student-loans-interest-rates.md”) or tell me which student loan product you mean, and I’ll look up the applicable rate."
+    },
+    {
+      "q": "Can I open a term deposit in Bitcoin or another cryptocurrency?",
+      "a": "The term‑deposit documents you supplied show available currencies as RON, EUR or USD and do not mention Bitcoin or any cryptocurrency as an option for opening a term deposit [3]. Based on these passages I cannot confirm that the bank supports crypto‑currency term deposits.\n\nTo answer definitively I need a bank document that explicitly covers allowed deposit currencies or any crypto product rules (for example a “deposit‑currencies.md”, “product‑catalogue.md” or a specific crypto‑product policy). Please provide that document or ask me to check with branch/operations."
+    },
+    {
+      "q": "What is the early repayment fee for a mortgage held with Libra Bank?",
+      "a": "The documents you provided do not include any mortgage product terms or an early‑repayment fee for mortgages, so I cannot state the mortgage early‑repayment charge from the available context. The only early‑withdrawal fee shown in the supplied passages is a 25 RON administrative fee for deposit early withdrawals, which applies to deposit products (see Deposit Account Fee Schedule) [2].\n\nIf you need the exact mortgage early‑repayment fee, please provide the mortgage fee schedule or the mortgage product T&Cs (for example “mortgage-fees.md” or the specific mortgage product code/contract), or tell me whether the loan is a fixed‑rate or variable‑rate mortgage and its product name so I can look it up."
+    }
+  ]
+}
