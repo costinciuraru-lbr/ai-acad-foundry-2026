@@ -18,6 +18,8 @@ Config:  AZURE_SPEECH_KEY, and either AZURE_SPEECH_REGION or AZURE_SPEECH_ENDPOI
 """
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
+
 import httpx
 
 from ..config import settings
@@ -88,10 +90,31 @@ def synthesize(text: str, voice: str | None = None) -> bytes:
 
 
 def transcribe(audio: bytes, content_type: str = "audio/wav", language: str | None = None) -> dict:
-    """Spoken audio -> text. Short-audio endpoint: up to about 60 seconds."""
-    _require_config()
-    language = language or settings.azure_speech_language
+    """Spoken audio -> text. Short-audio endpoint: up to about 60 seconds.
 
+    This REST endpoint takes exactly one `language` and has no built-in auto-detect
+    (real language identification on Azure Speech requires the SDK, which this module
+    deliberately avoids — see the module docstring). We fake it: when no language is
+    forced, the same audio is sent once per candidate in `azure_speech_candidate_languages`
+    (in parallel, so it costs latency, not wall-clock multiples) and the transcript with
+    the highest confidence wins. A Romanian sentence recognized as en-US typically comes
+    back as low-confidence gibberish, so the ro-RO attempt beats it, and vice versa.
+    """
+    _require_config()
+    if language:
+        return _transcribe_one(audio, content_type, language)
+
+    candidates = [c.strip() for c in settings.azure_speech_candidate_languages.split(",") if c.strip()]
+    if len(candidates) <= 1:
+        return _transcribe_one(audio, content_type, candidates[0] if candidates else settings.azure_speech_language)
+
+    with ThreadPoolExecutor(max_workers=len(candidates)) as pool:
+        results = list(pool.map(lambda lang: _transcribe_one(audio, content_type, lang), candidates))
+
+    return max(results, key=lambda r: r.get("confidence") or 0.0)
+
+
+def _transcribe_one(audio: bytes, content_type: str, language: str) -> dict:
     url = f"https://{_host('stt')}/speech/recognition/conversation/cognitiveservices/v1"
     response = httpx.post(
         url,

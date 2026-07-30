@@ -40,7 +40,8 @@ class Settings(BaseSettings):
     azure_speech_region: str = ""           # e.g. swedencentral (used if no custom endpoint)
     azure_speech_endpoint: str = ""         # custom-domain host, e.g. https://<resource>.cognitiveservices.azure.com
     azure_speech_voice: str = "en-US-AvaMultilingualNeural"
-    azure_speech_language: str = "en-US"
+    azure_speech_language: str = "en-US"    # used when a single language is forced explicitly
+    azure_speech_candidate_languages: str = "ro-RO,en-US"  # tried in parallel; highest-confidence wins
 
     # --- environment coordinates (used by scripts/, not by the app itself) ----
     azure_resource_group: str = ""
