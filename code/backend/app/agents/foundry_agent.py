@@ -205,7 +205,7 @@ def run_hosted(agent: dict, question: str, chunks: list[dict] | None = None) -> 
 
 def _run_thread(agent_id: str, persona_name: str, question: str, chunks: list[dict] | None) -> AgentReply:
     """The Agent Service protocol, in four calls."""
-    user = build_user_prompt(question, chunks)
+    user, security_notes = build_user_prompt(question, chunks)
 
     thread = _call("POST", "threads", {})                                    # 1 open
     thread_id = thread["id"]
@@ -254,4 +254,5 @@ def _run_thread(agent_id: str, persona_name: str, question: str, chunks: list[di
         model=run_obj.get("model") or settings.azure_ai_chat_deployment,
         prompt_tokens=usage.get("prompt_tokens"),
         completion_tokens=usage.get("completion_tokens"),
+        security_notes=security_notes,
     )

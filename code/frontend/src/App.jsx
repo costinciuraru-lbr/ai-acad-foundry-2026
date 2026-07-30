@@ -32,6 +32,9 @@ export default function App() {
   const [theme, setTheme] = useState('dark')
   const [adminOpen, setAdminOpen] = useState(false)
   const [sideOpen, setSideOpen] = useState(false)
+  // Reported up from Chat (token totals + active persona) so the page-title row can
+  // show them without owning Chat's message state itself.
+  const [chatStatus, setChatStatus] = useState(null)
 
   // Chat's answering settings — lifted up here so both the Chat and Settings
   // views can read/change them.
@@ -42,6 +45,7 @@ export default function App() {
   const [topK, setTopK] = useState(4)
   const [minScore, setMinScore] = useState('')
   const [sourceFilter, setSourceFilter] = useState('')
+  const [ttsVoice, setTtsVoice] = useState('')   // '' = server default (.env AZURE_SPEECH_VOICE)
 
   const loadAgents = useCallback(() => {
     api.agents()
@@ -119,20 +123,36 @@ export default function App() {
       </div>
 
       <main className={`main${view === 'chat' ? ' main-chat' : ''}`}>
-        <div className="page-title">Libra AI</div>
+        <div className="page-title-bar">
+          <div className="page-title">Libra AI</div>
+          {view === 'chat' && chatStatus && (
+            <div className="page-title-status">
+              <span className="badge muted" title="Total prompt/completion tokens billed for this conversation so far">
+                {chatStatus.tokensIn}↑ in · {chatStatus.tokensOut}↓ out
+              </span>
+              {chatStatus.personaLabel && (
+                <span className="badge muted" title="Change persona, RAG, mode etc. in Settings">
+                  {chatStatus.personaLabel}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
         {/* Always mounted, just hidden when not active — switching tabs must not unmount
             Chat mid-request, or its in-flight /ask response has nowhere to land. */}
         <div style={{ display: view === 'chat' ? 'contents' : 'none' }}>
           <Chat agents={agents} hostedOnly={hostedOnly} foundry={foundry}
                 agent={agent} useRag={useRag} useHistory={useHistory} mode={mode}
-                topK={topK} minScore={minScore} sourceFilter={sourceFilter} />
+                topK={topK} minScore={minScore} sourceFilter={sourceFilter} ttsVoice={ttsVoice}
+                onStatus={setChatStatus} />
         </div>
         {view === 'settings' && (
           <Settings agents={agents} hostedOnly={hostedOnly} foundry={foundry}
                     agent={agent} setAgent={setAgent} useRag={useRag} setUseRag={setUseRag}
                     useHistory={useHistory} setUseHistory={setUseHistory} mode={mode} setMode={setMode}
                     topK={topK} setTopK={setTopK} minScore={minScore} setMinScore={setMinScore}
-                    sourceFilter={sourceFilter} setSourceFilter={setSourceFilter} />
+                    sourceFilter={sourceFilter} setSourceFilter={setSourceFilter}
+                    ttsVoice={ttsVoice} setTtsVoice={setTtsVoice} />
         )}
         {view === 'documents' && <Documents />}
         {view === 'knowledge' && <Knowledge />}

@@ -10,10 +10,11 @@ loop runs on Microsoft's side.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from ..config import settings
 from ..llm import get_llm
+from ..security import sanitize
 from .persona import Persona
 
 
@@ -28,10 +29,13 @@ class AgentReply:
     model: str
     prompt_tokens: int | None = None
     completion_tokens: int | None = None
+    security_notes: list[str] = field(default_factory=list)   # injection patterns redacted, if any
 
 
-def build_user_prompt(question: str, chunks: list[dict] | None) -> str:
-    """Question alone (RAG off), or question + retrieved passages (RAG on).
+def build_user_prompt(question: str, chunks: list[dict] | None) -> tuple[str, list[str]]:
+    """(prompt, security notes). Question alone (RAG off), or question + retrieved
+    passages (RAG on) — each passage sanitized against prompt injection first
+    (see security.py).
 
     `chunks is None` means retrieval was never attempted (use_rag=false). An
     empty list means retrieval WAS attempted and found nothing worth keeping
@@ -40,19 +44,26 @@ def build_user_prompt(question: str, chunks: list[dict] | None) -> str:
     signal that grounding was expected. See vectorstore.search's min_score.
     """
     if chunks is None:
-        return question
+        return question, []
     if not chunks:
         context = "(no passage met the retrieval criteria for this question)"
+        notes: list[str] = []
     else:
-        context = "\n\n".join(
-            f"[{i + 1}] (score {c['score']}) {c['text']}" for i, c in enumerate(chunks)
-        )
-    return (
+        pieces = []
+        notes = []
+        for i, c in enumerate(chunks):
+            text, matched = sanitize(c["text"])
+            if matched:
+                notes.append(f"passage [{i + 1}] ({c.get('source', '?')}): {len(matched)} pattern(s) redacted")
+            pieces.append(f"[{i + 1}] (score {c['score']}) {text}")
+        context = "\n\n".join(pieces)
+    prompt = (
         "CONTEXT — retrieved passages, most similar first:\n"
         f"{context}\n\n"
         "QUESTION:\n"
         f"{question}"
     )
+    return prompt, notes
 
 
 def run(
@@ -64,7 +75,7 @@ def run(
     # None = RAG off entirely; [] = RAG on, retrieval just found nothing to keep.
     # Both need to be told apart from "RAG on with hits" — see build_user_prompt.
     system = persona.system_prompt(grounded=chunks is not None)
-    user = build_user_prompt(question, chunks)
+    user, security_notes = build_user_prompt(question, chunks)
 
     # precedence: explicit request value > persona file > .env default
     temp = temperature if temperature is not None else (
@@ -91,4 +102,5 @@ def run(
         model=result.model,
         prompt_tokens=result.prompt_tokens,
         completion_tokens=result.completion_tokens,
+        security_notes=security_notes,
     )

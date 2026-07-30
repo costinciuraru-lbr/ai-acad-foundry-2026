@@ -35,7 +35,7 @@ function bootstrapChats() {
 // configured from the Settings view — Chat only reads them to build each /ask request.
 export default function Chat({
   agents, hostedOnly = [], foundry,
-  agent, useRag, useHistory, mode, topK, minScore, sourceFilter,
+  agent, useRag, useHistory, mode, topK, minScore, sourceFilter, ttsVoice, onStatus,
 }) {
   const [chats, setChats] = useState(bootstrapChats)
   const [chatId, setChatId] = useState(() => chats[0].id)
@@ -50,7 +50,10 @@ export default function Chat({
   const busy = busyChatIds.has(chatId)
   const [error, setError] = useState(null)
   const [copiedIndex, setCopiedIndex] = useState(null)
+  const [speakingIndex, setSpeakingIndex] = useState(null)
   const [clearSnapshot, setClearSnapshot] = useState(null)   // {messages, history} while "undo" is offered
+  const [renamingId, setRenamingId] = useState(null)
+  const [renameValue, setRenameValue] = useState('')
   const [recording, setRecording] = useState(false)
   const [transcribing, setTranscribing] = useState(false)
   const endRef = useRef(null)
@@ -130,6 +133,25 @@ export default function Chat({
     if (chat) exportChat(chat)
   }
 
+  function startRename(id, currentTitle, e) {
+    e.stopPropagation()
+    setRenamingId(id)
+    setRenameValue(currentTitle)
+  }
+
+  function commitRename(id) {
+    const title = renameValue.trim()
+    setRenamingId(null)
+    if (!title) return
+    setChats((prev) => {
+      const target = prev.find((c) => c.id === id)
+      if (!target) return prev
+      const updated = { ...target, title, updatedAt: new Date().toISOString() }
+      saveChat(updated)
+      return prev.map((c) => (c.id === id ? updated : c))
+    })
+  }
+
   // Writes a message straight into a chat's stored record without touching the live
   // messages/history state — for when a request's answer arrives after the user has
   // already switched away from the chat that asked it.
@@ -156,6 +178,23 @@ export default function Chat({
       setCopiedIndex(index)
       setTimeout(() => setCopiedIndex((c) => (c === index ? null : c)), 1500)
     } catch (e) { setError(`Could not copy to clipboard: ${e.message}`) }
+  }
+
+  // Turns an already-sent answer into audio after the fact — independent of whether
+  // `voice replies` was on when it was originally generated.
+  async function speakMessage(index) {
+    const target = messages[index]
+    if (!target || target.role !== 'bot') return
+    setSpeakingIndex(index)
+    try {
+      const blob = await api.speak({ text: target.data.answer, voice: ttsVoice || undefined })
+      const audio = { url: URL.createObjectURL(blob), size: blob.size }
+      setMessages((m) => m.map((msg, i) => (i === index ? { ...msg, audio, voiceError: undefined } : msg)))
+    } catch (e) {
+      setMessages((m) => m.map((msg, i) => (i === index ? { ...msg, voiceError: e.message } : msg)))
+    } finally {
+      setSpeakingIndex(null)
+    }
   }
 
   async function handleImport(e) {
@@ -194,7 +233,7 @@ export default function Chat({
     }
   }
 
-  async function send(overrideText) {
+  async function send(overrideText, { skipUserMessage = false } = {}) {
     const text = (overrideText ?? question).trim()
     if (!text || busy) return
     // Remember which chat this question belongs to — by the time the response lands,
@@ -203,7 +242,7 @@ export default function Chat({
     const requestChatId = chatId
     setQuestion(''); setError(null)
     setBusyChatIds((s) => new Set(s).add(requestChatId))
-    setMessages((m) => [...m, { role: 'user', text }])
+    if (!skipUserMessage) setMessages((m) => [...m, { role: 'user', text }])
     try {
       const sent = useHistory ? withHistory(history, text) : text
       const data = await api.ask({
@@ -216,7 +255,7 @@ export default function Chat({
       const botMsg = { role: 'bot', data }
       if (voiceMode) {
         try {
-          const blob = await api.speak({ text: data.answer })
+          const blob = await api.speak({ text: data.answer, voice: ttsVoice || undefined })
           botMsg.audio = { url: URL.createObjectURL(blob), size: blob.size }
         } catch (e) {
           botMsg.voiceError = e.message   // fall back to text, don't lose the answer
@@ -240,6 +279,24 @@ export default function Chat({
     }
   }
 
+  // Drops the last answer (or error) and re-asks the question that led to it — handy
+  // after tweaking Settings, or when the answer just wasn't good. Only ever applies to
+  // the last turn: regenerating a mid-conversation answer would strand everything after it.
+  function regenerate() {
+    if (busy) return
+    const last = messages[messages.length - 1]
+    if (!last || (last.role !== 'bot' && last.role !== 'err')) return
+    let lastUserIndex = -1
+    for (let i = messages.length - 2; i >= 0; i--) {
+      if (messages[i].role === 'user') { lastUserIndex = i; break }
+    }
+    if (lastUserIndex === -1) return
+    const text = messages[lastUserIndex].text
+    setMessages((m) => m.slice(0, lastUserIndex + 1))
+    if (last.role === 'bot') setHistory((h) => h.slice(0, -1))   // the stale turn's history entry
+    send(text, { skipUserMessage: true })
+  }
+
   // Read-only, just for the orientation badge below — the disabled/legality logic
   // for these lives in the Settings view now, next to the controls that need it.
   const current = [...agents, ...hostedOnly].find((a) => a.name === agent)
@@ -254,6 +311,17 @@ export default function Chat({
     return acc
   }, { in: 0, out: 0 })
 
+  // Report the summary up to App.jsx, which renders it in the page-title row —
+  // Chat still owns the underlying message state, this is just for display.
+  useEffect(() => {
+    onStatus?.({
+      tokensIn: tokenTotals.in,
+      tokensOut: tokenTotals.out,
+      personaLabel: current ? `${current.display_name} · ${mode}${useRag ? '' : ' · no RAG'}` : null,
+    })
+    return () => onStatus?.(null)
+  }, [tokenTotals.in, tokenTotals.out, current, mode, useRag])   // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <div className="chat-shell">
       <aside className="chat-log">
@@ -262,8 +330,24 @@ export default function Chat({
           {chats.map((c) => (
             <div key={c.id} className={`chat-log-item ${c.id === chatId ? 'active' : ''}`}
                  onClick={() => switchChat(c.id)} title={c.title}>
-              <span className="chat-log-title">{c.title}</span>
+              {renamingId === c.id ? (
+                <input
+                  className="chat-log-rename-input"
+                  value={renameValue}
+                  autoFocus
+                  onClick={(e) => e.stopPropagation()}
+                  onChange={(e) => setRenameValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') { e.preventDefault(); commitRename(c.id) }
+                    if (e.key === 'Escape') { e.preventDefault(); setRenamingId(null) }
+                  }}
+                  onBlur={() => commitRename(c.id)}
+                />
+              ) : (
+                <span className="chat-log-title">{c.title}</span>
+              )}
               <span className="chat-log-actions">
+                <button className="icon-btn" title="Rename" onClick={(e) => startRename(c.id, c.title, e)}>✎</button>
                 <button className="icon-btn" title="Export as .json" onClick={(e) => handleExport(c.id, e)}>⬇</button>
                 <button className="icon-btn" title="Delete" onClick={(e) => removeChat(c.id, e)}>🗑</button>
               </span>
@@ -278,42 +362,38 @@ export default function Chat({
       </aside>
     <div className="chat-wrap">
       <div className="chat-bar chat-topbar">
-        <div className="chat-topbar-info">
-          <span className="badge muted" title="Total prompt/completion tokens billed for this conversation so far">
-            {tokenTotals.in}↑ in · {tokenTotals.out}↓ out
-          </span>
-          {current && (
-            <span className="badge muted" title={`${current.description} — change persona, RAG, mode etc. in Settings`}>
-              {current.display_name} · {mode}{useRag ? '' : ' · no RAG'}
-            </span>
-          )}
-        </div>
-        <div className="chat-topbar-actions">
-          <label className="check" style={{ margin: 0 }} title="Speak replies out loud (Azure AI Speech) instead of showing plain text">
-            <input type="checkbox" checked={voiceMode} onChange={(e) => setVoiceMode(e.target.checked)} />
-            🔊 voice replies
-          </label>
-          <button className="btn btn-outline btn-sm" onClick={clearSnapshot ? handleUndo : handleClear}
-                  title={clearSnapshot ? 'Bring the cleared conversation back' : 'Clear this conversation'}>
-            {clearSnapshot ? '↺ undo' : 'clear'}
-          </button>
-        </div>
+        {/* token count + persona/mode now surface in the page-title row up top — see onStatus */}
+        <label className="check" style={{ margin: 0 }} title="Speak replies out loud (Azure AI Speech) instead of showing plain text">
+          <input type="checkbox" checked={voiceMode} onChange={(e) => setVoiceMode(e.target.checked)} />
+          🔊 voice replies
+        </label>
+        <button className="btn btn-outline btn-sm" onClick={clearSnapshot ? handleUndo : handleClear}
+                title={clearSnapshot ? 'Bring the cleared conversation back' : 'Clear this conversation'}>
+          {clearSnapshot ? '↺ undo' : 'clear'}
+        </button>
       </div>
 
       <div className="msgs">
         {messages.length === 0 && (
-          <div className="card" style={{ alignSelf: 'center', maxWidth: '46rem', textAlign: 'center' }}>
-            <h3>Libra AI</h3>
-            <p className="muted" style={{ margin: 0 }}>
-              Ask a question about the documents you have ingested. Switch the persona to change how
-              it answers, or turn RAG off to see the model answer without grounding.
-            </p>
+          <div className="msg bot">
+            Bună ziua! Sunt Libra AI, asistentul digital Libra Bank. Vă pot ajuta cu informații
+            despre conturi, depozite, dobânzi, taxe și alte servicii ale băncii. Cu ce vă pot fi
+            de folos astăzi?
           </div>
         )}
 
         {messages.map((m, i) => {
           if (m.role === 'user') return <div className="msg user" key={i}>{m.text}</div>
-          if (m.role === 'err') return <div className="msg err" key={i}><strong>Request failed:</strong> {m.text}</div>
+          if (m.role === 'err') return (
+            <div className="msg err" key={i}>
+              <strong>Request failed:</strong> {m.text}
+              {i === messages.length - 1 && (
+                <div style={{ marginTop: '.6rem' }}>
+                  <button className="btn btn-outline btn-sm" onClick={regenerate} disabled={busy}>↻ try again</button>
+                </div>
+              )}
+            </div>
+          )
           const d = m.data
           return (
             <div className="msg bot" key={i}>
@@ -344,6 +424,14 @@ export default function Chat({
                 <button className="btn btn-outline btn-sm" onClick={() => copyAnswer(d.answer, i)}>
                   {copiedIndex === i ? '✓ copied' : '⧉ copy'}
                 </button>
+                {!m.audio && (
+                  <button className="btn btn-outline btn-sm" onClick={() => speakMessage(i)} disabled={speakingIndex === i}>
+                    {speakingIndex === i ? <span className="spin" /> : '🔊 speak'}
+                  </button>
+                )}
+                {i === messages.length - 1 && (
+                  <button className="btn btn-outline btn-sm" onClick={regenerate} disabled={busy}>↻ regenerate</button>
+                )}
                 <span className="badge">{d.agent?.display_name || 'agent'}</span>
                 <span className={`badge ${d.augmented ? 'gold' : 'muted'}`}>{d.augmented ? 'grounded' : 'no retrieval'}</span>
                 <span className="badge muted">{d.agent?.mode}</span>
@@ -351,6 +439,9 @@ export default function Chat({
                 {d.usage && <span className="badge muted">{d.usage.prompt_tokens}↑ {d.usage.completion_tokens}↓ tokens</span>}
                 {d.dropped_below_threshold > 0 &&
                   <span className="badge muted">{d.dropped_below_threshold} dropped below threshold</span>}
+                {d.security_notes?.length > 0 && (
+                  <span className="badge crimson" title={d.security_notes.join('; ')}>⚠ injection blocked</span>
+                )}
               </div>
               {d.augmented && (d.retrieved?.length ?? 0) === 0 && (
                 <p className="err" style={{ margin: '.5rem 0 0' }}>
@@ -377,7 +468,11 @@ export default function Chat({
             </div>
           )
         })}
-        {busy && <div className="msg bot"><span className="spin" /> thinking…</div>}
+        {busy && (
+          <div className="msg bot typing-indicator" title="Thinking…">
+            <span /><span /><span />
+          </div>
+        )}
         <div ref={endRef} />
       </div>
 

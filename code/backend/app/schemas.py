@@ -257,6 +257,10 @@ class AskResponse(BaseModel):
     retrieved: list[SearchHit] = Field(default_factory=list)
     dropped_below_threshold: int = Field(0, description="Retrieved hits removed by min_score before the model saw them")
     usage: Optional[Usage] = None
+    security_notes: list[str] = Field(
+        default_factory=list,
+        description="Prompt-injection patterns found and redacted in retrieved passages, if any — see app/security.py",
+    )
 
 
 # --- tools / services ---------------------------------------------------------

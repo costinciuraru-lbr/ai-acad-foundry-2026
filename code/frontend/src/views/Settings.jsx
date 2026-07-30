@@ -1,6 +1,21 @@
 import { useEffect } from 'react'
 import { Head, RunsOnBadge } from '../components'
 
+// A curated shortlist, not every Azure neural voice — multilingual ones matter here
+// since this assistant answers in whatever language it's asked (English or Romanian
+// have both come up), and they adapt pronunciation to match automatically.
+const TTS_VOICES = [
+  { value: '', label: 'Server default (.env AZURE_SPEECH_VOICE)' },
+  { value: 'en-US-AvaMultilingualNeural', label: 'Ava — multilingual, female' },
+  { value: 'en-US-AndrewMultilingualNeural', label: 'Andrew — multilingual, male' },
+  { value: 'en-US-EmmaMultilingualNeural', label: 'Emma — multilingual, female' },
+  { value: 'en-US-BrianMultilingualNeural', label: 'Brian — multilingual, male' },
+  { value: 'ro-RO-AlinaNeural', label: 'Alina — Romanian, female' },
+  { value: 'ro-RO-EmilNeural', label: 'Emil — Romanian, male' },
+  { value: 'en-US-JennyNeural', label: 'Jenny — English (US), female' },
+  { value: 'en-US-GuyNeural', label: 'Guy — English (US), male' },
+]
+
 // Everything that shapes how Chat answers, lifted out of the Chat view so it has
 // its own tab. Voice replies stays on the Chat composer instead — that's a toggle
 // you flip mid-conversation, not a setting you configure ahead of time.
@@ -8,6 +23,7 @@ export default function Settings({
   agents, hostedOnly = [], foundry,
   agent, setAgent, useRag, setUseRag, useHistory, setUseHistory,
   mode, setMode, topK, setTopK, minScore, setMinScore, sourceFilter, setSourceFilter,
+  ttsVoice, setTtsVoice,
 }) {
   const all = [...agents, ...hostedOnly]
   const current = all.find((a) => a.name === agent)
@@ -73,6 +89,19 @@ export default function Settings({
           <input type="text" value={sourceFilter} onChange={(e) => setSourceFilter(e.target.value)}
                  placeholder="source filter, e.g. notice-period-policy-v2" style={{ minWidth: '16rem' }}
                  title="Exact match on the source field" />
+        </div>
+      </div>
+
+      <div className="card">
+        <h3>Voice</h3>
+        <p className="muted" style={{ marginTop: 0 }}>
+          Used for Chat's 🔊 voice replies toggle and the per-message 🔊 speak button.
+        </p>
+        <div style={{ maxWidth: '22rem' }}>
+          <label>TTS voice</label>
+          <select value={ttsVoice} onChange={(e) => setTtsVoice(e.target.value)}>
+            {TTS_VOICES.map((v) => <option key={v.value} value={v.value}>{v.label}</option>)}
+          </select>
         </div>
       </div>
     </>

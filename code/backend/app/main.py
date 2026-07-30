@@ -450,6 +450,7 @@ def ask(req: AskRequest) -> AskResponse:
         retrieved=retrieved,
         dropped_below_threshold=dropped_below_threshold,
         usage=Usage(prompt_tokens=reply.prompt_tokens, completion_tokens=reply.completion_tokens),
+        security_notes=reply.security_notes,
     )
 
 
