@@ -27,6 +27,7 @@ export const api = {
   ingest: (payload) => request('/ingest', { method: 'POST', body: payload }),
   collection: () => request('/collection'),
   resetCollection: () => request('/collection', { method: 'DELETE' }),
+  documents: () => request('/documents'),
 
   search: (payload) => request('/search', { method: 'POST', body: payload }),
   ask: (payload) => request('/ask', { method: 'POST', body: payload }),

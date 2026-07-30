@@ -5,6 +5,8 @@ Swagger UI:  /docs        ReDoc: /redoc
 """
 from __future__ import annotations
 
+from pathlib import Path
+
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
@@ -17,10 +19,10 @@ from .embeddings import get_embedder
 from .llm import get_llm
 from .schemas import (
     AgentInfo, AgentListResponse, AskRequest, AskResponse, AzureDeployment, AzureDeployments,
-    AzureStatus, ChunkInfo, ChunkRequest, ChunkResponse, CollectionInfo, FoundryAvailability,
-    Health, HostedAgent, IngestRequest, IngestResponse, PersonaSummary, ScrapeRequest,
-    ScrapeResponse, SearchHit, SearchRequest, SearchResponse, SpeakRequest,
-    TranscribeResponse, Usage,
+    AzureStatus, ChunkInfo, ChunkRequest, ChunkResponse, CollectionInfo, DocumentInfo,
+    DocumentsResponse, FoundryAvailability, Health, HostedAgent, IngestRequest, IngestResponse,
+    PersonaSummary, ScrapeRequest, ScrapeResponse, SearchHit, SearchRequest, SearchResponse,
+    SpeakRequest, TranscribeResponse, Usage,
 )
 from .services import speech, web
 from .vectorstore import DimensionMismatch, VectorStore
@@ -40,6 +42,31 @@ app.add_middleware(
 )
 
 store = VectorStore()
+
+# Same corpus scripts/load_corpus.py ingests — repo_root/data, four levels up from this file.
+DATA_DIR = Path(__file__).resolve().parents[3] / "data"
+DOC_SKIP_FILES = {"readme.md", "questions.md"}
+DOC_FRONTMATTER_KEYS = ("title", "product", "audience", "effective", "version")
+
+
+def _parse_document(path: Path) -> tuple[str, dict]:
+    """(body, metadata) from a '---\\nkey: value\\n...\\n---' header — same hand-rolled
+    parser as load_corpus.py, kept in sync since both read the same five flat fields."""
+    raw = path.read_text(encoding="utf-8")
+    if not raw.startswith("---"):
+        return raw.strip(), {}
+    end = raw.find("\n---", 3)
+    if end == -1:
+        return raw.strip(), {}
+    header, body = raw[3:end].strip(), raw[end + 4:].strip()
+    metadata: dict = {}
+    for line in header.splitlines():
+        key, sep, value = line.partition(":")
+        if sep and key.strip() in DOC_FRONTMATTER_KEYS:
+            metadata[key.strip()] = value.strip()
+    if isinstance(metadata.get("version"), str) and metadata["version"].isdigit():
+        metadata["version"] = int(metadata["version"])
+    return body, metadata
 
 
 # --- helpers ------------------------------------------------------------------
@@ -282,6 +309,26 @@ def ingest(req: IngestRequest) -> IngestResponse:
     )
 
 
+@app.get("/documents", response_model=DocumentsResponse, tags=["2 · ingestion"])
+def list_documents() -> DocumentsResponse:
+    """The corpus on disk — same files `scripts/load_corpus.py` ingests. This reads the
+    source .md files directly, not Qdrant, so it reflects what's *available* to ingest,
+    not necessarily what's currently in the collection (see /collection for that)."""
+    if not DATA_DIR.exists():
+        return DocumentsResponse(count=0, documents=[])
+    docs = []
+    for path in sorted(DATA_DIR.glob("*.md")):
+        if path.name.lower() in DOC_SKIP_FILES:
+            continue
+        body, metadata = _parse_document(path)
+        docs.append(DocumentInfo(
+            source=path.stem, filename=path.name,
+            title=metadata.get("title", path.stem), metadata=metadata,
+            text=body, chars=len(body),
+        ))
+    return DocumentsResponse(count=len(docs), documents=docs)
+
+
 @app.get("/collection", response_model=CollectionInfo, tags=["2 · ingestion"])
 def collection_info() -> CollectionInfo:
     _require_qdrant()
@@ -355,7 +402,9 @@ def ask(req: AskRequest) -> AskResponse:
                                 detail="use_rag=true but the collection is empty — POST /ingest first, "
                                        "or set use_rag=false for a plain LLM answer.")
         top_k = req.top_k or settings.top_k
-        qvec = _embed([req.question])[0]
+        # Retrieval embeds the raw new question when the caller sends one separately —
+        # `question` itself may have chat history folded in, which blurs the search vector.
+        qvec = _embed([req.retrieval_query or req.question])[0]
         hits, dropped_below_threshold = store.search(
             qvec, top_k, min_score=req.min_score, filters=req.filters,
         )

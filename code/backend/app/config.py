@@ -30,7 +30,7 @@ class Settings(BaseSettings):
 
     # --- agents ---------------------------------------------------------------
     agent_mode: str = "local"               # local (runs here) | foundry (hosted by Azure)
-    agent_persona: str = "default"          # which app/agents/personas/<name>.json to use
+    agent_persona: str = "banccherul"       # which app/agents/personas/<name>.json to use
     azure_ai_project_endpoint: str = ""     # Foundry portal → project → Overview
     azure_openai_endpoint: str = ""          # the OpenAI-compatible surface of the same resource
     foundry_agent_id: str = ""              # printed by scripts/deploy_agent.py

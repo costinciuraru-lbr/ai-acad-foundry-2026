@@ -43,15 +43,25 @@ export default function Chat({
   const [history, setHistory] = useState(() => chats[0].history)   // [{q, a}] — for multi-turn context
   const [question, setQuestion] = useState('')
   const [voiceMode, setVoiceMode] = useState(false)
-  const [busy, setBusy] = useState(false)
+  // Which chats have a request in flight — a Set, not a single flag, because Chat is a
+  // singleton shared by every chat (it stays mounted across tab switches, see App.jsx).
+  // A plain boolean would mean chat A "thinking" also blocks sending in chat B.
+  const [busyChatIds, setBusyChatIds] = useState(() => new Set())
+  const busy = busyChatIds.has(chatId)
   const [error, setError] = useState(null)
+  const [copiedIndex, setCopiedIndex] = useState(null)
+  const [clearSnapshot, setClearSnapshot] = useState(null)   // {messages, history} while "undo" is offered
   const [recording, setRecording] = useState(false)
   const [transcribing, setTranscribing] = useState(false)
   const endRef = useRef(null)
   const recorderRef = useRef(null)
+  const undoTimerRef = useRef(null)
+  const chatIdRef = useRef(chatId)   // lets an in-flight request notice a chat switch after its await
 
+  useEffect(() => { chatIdRef.current = chatId }, [chatId])
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages, busy])
   useEffect(() => () => recorderRef.current?.stop(), [])   // release the mic if the view unmounts mid-recording
+  useEffect(() => () => clearTimeout(undoTimerRef.current), [])
 
   // Autosave: every change to the active chat's messages/history is persisted
   // immediately, keyed by whichever chatId is current at the time.
@@ -78,6 +88,7 @@ export default function Chat({
     setChats((prev) => [fresh, ...prev])
     setChatId(fresh.id)
     setMessages([]); setHistory([]); setQuestion(''); setError(null)
+    setClearSnapshot(null); clearTimeout(undoTimerRef.current)
   }
 
   function switchChat(id, list = chats) {
@@ -87,6 +98,22 @@ export default function Chat({
     setChatId(id)
     setMessages(target.messages); setHistory(target.history)
     setQuestion(''); setError(null)
+    setClearSnapshot(null); clearTimeout(undoTimerRef.current)   // it belonged to the chat we're leaving
+  }
+
+  function handleClear() {
+    if (!messages.length) return
+    setClearSnapshot({ messages, history })
+    setMessages([]); setHistory([])
+    clearTimeout(undoTimerRef.current)
+    undoTimerRef.current = setTimeout(() => setClearSnapshot(null), 6000)
+  }
+
+  function handleUndo() {
+    if (!clearSnapshot) return
+    setMessages(clearSnapshot.messages); setHistory(clearSnapshot.history)
+    setClearSnapshot(null)
+    clearTimeout(undoTimerRef.current)
   }
 
   function removeChat(id, e) {
@@ -101,6 +128,34 @@ export default function Chat({
     e.stopPropagation()
     const chat = chats.find((c) => c.id === id)
     if (chat) exportChat(chat)
+  }
+
+  // Writes a message straight into a chat's stored record without touching the live
+  // messages/history state — for when a request's answer arrives after the user has
+  // already switched away from the chat that asked it.
+  function appendToChat(id, message, historyEntry) {
+    setChats((prev) => {
+      const target = prev.find((c) => c.id === id)
+      if (!target) return prev   // that chat was deleted while we were waiting
+      const updatedMessages = [...target.messages, stripAudioForSave(message)]
+      const updated = {
+        ...target,
+        title: deriveTitle(target.title, updatedMessages),
+        updatedAt: new Date().toISOString(),
+        messages: updatedMessages,
+        history: historyEntry ? [...target.history, historyEntry] : target.history,
+      }
+      saveChat(updated)
+      return prev.map((c) => (c.id === id ? updated : c))
+    })
+  }
+
+  async function copyAnswer(text, index) {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopiedIndex(index)
+      setTimeout(() => setCopiedIndex((c) => (c === index ? null : c)), 1500)
+    } catch (e) { setError(`Could not copy to clipboard: ${e.message}`) }
   }
 
   async function handleImport(e) {
@@ -142,12 +197,19 @@ export default function Chat({
   async function send(overrideText) {
     const text = (overrideText ?? question).trim()
     if (!text || busy) return
-    setQuestion(''); setError(null); setBusy(true)
+    // Remember which chat this question belongs to — by the time the response lands,
+    // the user may well have switched to a different one (chatIdRef stays current;
+    // `chatId` itself would be a stale closure from this render).
+    const requestChatId = chatId
+    setQuestion(''); setError(null)
+    setBusyChatIds((s) => new Set(s).add(requestChatId))
     setMessages((m) => [...m, { role: 'user', text }])
     try {
       const sent = useHistory ? withHistory(history, text) : text
       const data = await api.ask({
-        question: sent, use_rag: useRag, top_k: Number(topK), agent, agent_mode: mode,
+        // `question` carries history for the prompt; `retrieval_query` is always just the
+        // new turn, so an unrelated earlier question doesn't blur what gets retrieved.
+        question: sent, retrieval_query: text, use_rag: useRag, top_k: Number(topK), agent, agent_mode: mode,
         min_score: minScore !== '' ? Number(minScore) : undefined,
         filters: sourceFilter.trim() ? { source: sourceFilter.trim() } : undefined,
       })
@@ -160,17 +222,37 @@ export default function Chat({
           botMsg.voiceError = e.message   // fall back to text, don't lose the answer
         }
       }
-      setMessages((m) => [...m, botMsg])
-      setHistory((h) => [...h, { q: text, a: data.answer }])
+      if (chatIdRef.current === requestChatId) {
+        setMessages((m) => [...m, botMsg])
+        setHistory((h) => [...h, { q: text, a: data.answer }])
+      } else {
+        appendToChat(requestChatId, botMsg, { q: text, a: data.answer })
+      }
     } catch (e) {
-      setMessages((m) => [...m, { role: 'err', text: e.message }])
-      setError(e.message)
-    } finally { setBusy(false) }
+      if (chatIdRef.current === requestChatId) {
+        setMessages((m) => [...m, { role: 'err', text: e.message }])
+        setError(e.message)
+      } else {
+        appendToChat(requestChatId, { role: 'err', text: e.message })
+      }
+    } finally {
+      setBusyChatIds((s) => { const next = new Set(s); next.delete(requestChatId); return next })
+    }
   }
 
   // Read-only, just for the orientation badge below — the disabled/legality logic
   // for these lives in the Settings view now, next to the controls that need it.
   const current = [...agents, ...hostedOnly].find((a) => a.name === agent)
+
+  // Every /ask reply already carries the model provider's own exact token count —
+  // summing those beats re-tokenizing client-side (no encoding-mismatch guesswork).
+  const tokenTotals = messages.reduce((acc, m) => {
+    if (m.role === 'bot' && m.data?.usage) {
+      acc.in += m.data.usage.prompt_tokens || 0
+      acc.out += m.data.usage.completion_tokens || 0
+    }
+    return acc
+  }, { in: 0, out: 0 })
 
   return (
     <div className="chat-shell">
@@ -195,23 +277,33 @@ export default function Chat({
         </label>
       </aside>
     <div className="chat-wrap">
-      <div className="chat-bar">
-        {current && (
-          <span className="badge muted" title={`${current.description} — change persona, RAG, mode etc. in Settings`}>
-            {current.display_name} · {mode}{useRag ? '' : ' · no RAG'}
+      <div className="chat-bar chat-topbar">
+        <div className="chat-topbar-info">
+          <span className="badge muted" title="Total prompt/completion tokens billed for this conversation so far">
+            {tokenTotals.in}↑ in · {tokenTotals.out}↓ out
           </span>
-        )}
-        <label className="check" style={{ margin: 0 }} title="Speak replies out loud (Azure AI Speech) instead of showing plain text">
-          <input type="checkbox" checked={voiceMode} onChange={(e) => setVoiceMode(e.target.checked)} />
-          🔊 voice replies
-        </label>
-        <button className="btn btn-outline btn-sm" onClick={() => { setMessages([]); setHistory([]) }}>clear</button>
+          {current && (
+            <span className="badge muted" title={`${current.description} — change persona, RAG, mode etc. in Settings`}>
+              {current.display_name} · {mode}{useRag ? '' : ' · no RAG'}
+            </span>
+          )}
+        </div>
+        <div className="chat-topbar-actions">
+          <label className="check" style={{ margin: 0 }} title="Speak replies out loud (Azure AI Speech) instead of showing plain text">
+            <input type="checkbox" checked={voiceMode} onChange={(e) => setVoiceMode(e.target.checked)} />
+            🔊 voice replies
+          </label>
+          <button className="btn btn-outline btn-sm" onClick={clearSnapshot ? handleUndo : handleClear}
+                  title={clearSnapshot ? 'Bring the cleared conversation back' : 'Clear this conversation'}>
+            {clearSnapshot ? '↺ undo' : 'clear'}
+          </button>
+        </div>
       </div>
 
       <div className="msgs">
         {messages.length === 0 && (
           <div className="card" style={{ alignSelf: 'center', maxWidth: '46rem', textAlign: 'center' }}>
-            <h3>Libra Assist</h3>
+            <h3>Libra AI</h3>
             <p className="muted" style={{ margin: 0 }}>
               Ask a question about the documents you have ingested. Switch the persona to change how
               it answers, or turn RAG off to see the model answer without grounding.
@@ -249,6 +341,9 @@ export default function Chat({
                 </>
               )}
               <div className="msg-meta">
+                <button className="btn btn-outline btn-sm" onClick={() => copyAnswer(d.answer, i)}>
+                  {copiedIndex === i ? '✓ copied' : '⧉ copy'}
+                </button>
                 <span className="badge">{d.agent?.display_name || 'agent'}</span>
                 <span className={`badge ${d.augmented ? 'gold' : 'muted'}`}>{d.augmented ? 'grounded' : 'no retrieval'}</span>
                 <span className="badge muted">{d.agent?.mode}</span>
@@ -288,7 +383,7 @@ export default function Chat({
 
       <Err error={error} />
       <div className="composer">
-        <textarea value={question} placeholder="Ask Libra Assist…  (Enter to send, Shift+Enter for a new line)"
+        <textarea value={question} placeholder="Ask Libra AI…  (Enter to send, Shift+Enter for a new line)"
                   onChange={(e) => setQuestion(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }} />
         <button className={`btn ${recording ? 'btn-primary' : 'btn-outline'} shrink`} onClick={toggleRecording}

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { api } from './api'
 import Agents from './views/Agents'
 import Chat from './views/Chat'
+import Documents from './views/Documents'
 import Knowledge from './views/Knowledge'
 import Search from './views/Search'
 import Settings from './views/Settings'
@@ -11,6 +12,7 @@ import Tools from './views/Tools'
 const VIEWS = [
   { id: 'chat', label: 'Chat', group: 'Assistant' },
   { id: 'settings', label: 'Settings', group: 'Assistant' },
+  { id: 'documents', label: 'Documents', group: 'Pipeline' },
   { id: 'knowledge', label: 'Knowledge', group: 'Pipeline' },
   { id: 'search', label: 'Retrieval', group: 'Pipeline' },
   { id: 'agents', label: 'Agents', group: 'Platform' },
@@ -33,11 +35,11 @@ export default function App() {
 
   // Chat's answering settings — lifted up here so both the Chat and Settings
   // views can read/change them.
-  const [agent, setAgent] = useState('default')
+  const [agent, setAgent] = useState('banccherul')
   const [useRag, setUseRag] = useState(true)
   const [useHistory, setUseHistory] = useState(true)
   const [mode, setMode] = useState('local')
-  const [topK, setTopK] = useState(3)
+  const [topK, setTopK] = useState(4)
   const [minScore, setMinScore] = useState('')
   const [sourceFilter, setSourceFilter] = useState('')
 
@@ -65,7 +67,7 @@ export default function App() {
     <div className="app">
       <div className="side-zone" onMouseEnter={() => setSideOpen(true)} onMouseLeave={() => setSideOpen(false)}>
       <aside className={`side ${sideOpen ? 'open' : ''}`}>
-        <p className="brand">Libra Assist<small>console</small></p>
+        <p className="brand">Libra AI<small>console</small></p>
         {topGroups.map((g) => (
           <div key={g}>
             <div className="nav-group">{g}</div>
@@ -118,11 +120,13 @@ export default function App() {
 
       <main className={`main${view === 'chat' ? ' main-chat' : ''}`}>
         <div className="page-title">Libra AI</div>
-        {view === 'chat' && (
+        {/* Always mounted, just hidden when not active — switching tabs must not unmount
+            Chat mid-request, or its in-flight /ask response has nowhere to land. */}
+        <div style={{ display: view === 'chat' ? 'contents' : 'none' }}>
           <Chat agents={agents} hostedOnly={hostedOnly} foundry={foundry}
                 agent={agent} useRag={useRag} useHistory={useHistory} mode={mode}
                 topK={topK} minScore={minScore} sourceFilter={sourceFilter} />
-        )}
+        </div>
         {view === 'settings' && (
           <Settings agents={agents} hostedOnly={hostedOnly} foundry={foundry}
                     agent={agent} setAgent={setAgent} useRag={useRag} setUseRag={setUseRag}
@@ -130,6 +134,7 @@ export default function App() {
                     topK={topK} setTopK={setTopK} minScore={minScore} setMinScore={setMinScore}
                     sourceFilter={sourceFilter} setSourceFilter={setSourceFilter} />
         )}
+        {view === 'documents' && <Documents />}
         {view === 'knowledge' && <Knowledge />}
         {view === 'search' && <Search />}
         {view === 'agents' && <Agents agents={agents} hostedOnly={hostedOnly} foundry={foundry}

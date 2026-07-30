@@ -1,4 +1,4 @@
-/* Libra Assist console — red-and-black brand palette. */
+/* Libra AI console — red-and-black brand palette. */
 :root {
   --c-ink: #2c2d2f; --c-paper: #eeeeee;
   --c-red: #e0303f; --c-red-bright: #ef4452; --c-red-deep: #7a0d18;
@@ -139,6 +139,8 @@ pre.out { background: var(--code-bg); border: 1px solid var(--border); border-ra
 .composer textarea { min-height: 34px; max-height: 140px; padding: .4rem .65rem; font-family: var(--font-sans); font-size: .95rem; }
 .chat-bar { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; padding-bottom: .8rem; }
 .chat-bar select { width: auto; min-width: 150px; }
+.chat-topbar { justify-content: space-between; }
+.chat-topbar-info, .chat-topbar-actions { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
 
 details.sources { margin-top: .55rem; font-size: .82rem; }
 details.sources summary { cursor: pointer; color: var(--accent); }

@@ -23,6 +23,7 @@ export default defineConfig({
       '/chunk': target,
       '/ingest': target,
       '/collection': target,
+      '/documents': target,
       '/search': target,
       '/ask': target,
       '/agents': target,

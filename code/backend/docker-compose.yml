@@ -50,6 +50,7 @@ services:
       - ../frontend/src:/srv/src              # live reload: edit locally, HMR in the browser
       - ../frontend/index.html:/srv/index.html
       - ../frontend/vite.config.js:/srv/vite.config.js   # proxy routes, without a rebuild
+      - ../frontend/public:/srv/public         # static assets (favicon, etc.), without a rebuild
     depends_on:
       - api
     extra_hosts:

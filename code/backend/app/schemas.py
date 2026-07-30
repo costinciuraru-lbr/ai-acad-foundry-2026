@@ -120,17 +120,23 @@ class AskRequest(BaseModel):
         "question": "What fee does Libra Bank charge for early mortgage repayment?",
         "use_rag": True,
         "top_k": 3,
-        "agent": "lyrical",
+        "agent": "brapper",
     }]}}
 
     question: str = Field(..., min_length=1)
+    retrieval_query: Optional[str] = Field(
+        None,
+        description="What to embed for retrieval, if different from `question` — e.g. the raw "
+                    "follow-up with any chat-history preamble stripped back out, so an unrelated "
+                    "earlier turn doesn't blur the search vector. Defaults to `question`.",
+    )
     use_rag: bool = Field(True, description="false = plain LLM; true = retrieve then augment")
     top_k: Optional[int] = Field(None, ge=1, le=50)
     temperature: Optional[float] = Field(None, ge=0, le=2)
     agent: Optional[str] = Field(
         None,
-        description="Persona name from app/agents/personas/ — try 'default', 'lyrical', "
-                    "'compliance', 'teller'. Falls back to AGENT_PERSONA in .env.",
+        description="Persona name from app/agents/personas/ — try 'banccherul' or 'brapper'. "
+                    "Falls back to AGENT_PERSONA in .env.",
     )
     agent_mode: Optional[Literal["local", "foundry"]] = Field(
         None, description="local = the loop runs here; foundry = the hosted Agent Service"
@@ -289,6 +295,21 @@ class TranscribeResponse(BaseModel):
     confidence: Optional[float] = None
     duration_seconds: Optional[float] = None
     language: Optional[str] = None
+
+
+# --- corpus ---------------------------------------------------------------------
+class DocumentInfo(BaseModel):
+    source: str = Field(description="Filename stem — the `source` key used when this doc is ingested")
+    filename: str
+    title: str
+    metadata: dict = Field(default_factory=dict, description="Frontmatter: product, audience, effective, version")
+    text: str
+    chars: int
+
+
+class DocumentsResponse(BaseModel):
+    count: int
+    documents: list[DocumentInfo]
 
 
 # --- ops ----------------------------------------------------------------------

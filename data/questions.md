@@ -15,7 +15,7 @@ something retrievable) · ❌ wrong or invented.
 | A1 | What is the minimum amount to open a standard term deposit? | 1,000 RON (or EUR/USD equivalent) | `account-types.md` | 1,000 RON, correctly stated with eligibility | ✅ |
 | A2 | What fee applies if I withdraw from a term deposit before maturity? | 25 RON admin fee + forfeits all accrued interest | `early-withdrawal-policy.md` | 25 RON fee + full interest forfeiture, plus the death/court exception | ✅ |
 | A3 | What is the deposit guarantee coverage limit at Libra Bank? | 100,000 EUR equivalent per depositor per bank | `deposit-insurance-guarantee.md` | 100,000 EUR, correctly generalised to joint accounts too | ✅ |
-| A4 | What is the withholding tax rate on deposit interest? | 10% | `tax-on-interest.md` | 10%, with correct payment timing | ✅ |
+| A4 |  What is the withholding tax rate on deposit interest? | 10% | `tax-on-interest.md` | 10%, with correct payment timing | ✅ |
 | A5 | What is the current notice period for a notice savings account? | 45 calendar days (current, since 2026-01-15) | `notice-period-policy-v2.md` | 45 days, and correctly flagged the prior 30-day period without being asked | ✅ |
 | A6 | What is the annual interest rate for a 12-month RON term deposit under the 2026 schedule? | 5.00% | `interest-rate-table-2026.md` | 5.00%, correctly picked the 2026 table over 2025 | ✅ |
 | A7 | How much does a paper monthly statement cost for a deposit account? | 8 RON | `fee-schedule.md` | 8 RON | ✅ |
