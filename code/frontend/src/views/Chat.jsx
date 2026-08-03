@@ -21,6 +21,71 @@ function withHistory(history, question) {
   return `Previous conversation:\n${transcript}\n\nUser: ${question}`
 }
 
+// The little figure standing at the desk — waves when you land on a chat, puts a
+// hand to the chin while the request is in flight, "talks" once the reply lands,
+// and settles back to idle the moment you start typing the next question.
+function DeskPerson({ pose }) {
+  return (
+    <div className="desk-person-wrap">
+      <svg className={`desk-person pose-${pose}`} viewBox="0 0 120 120" width="72" height="72"
+           shapeRendering="crispEdges" aria-hidden="true">
+        <g transform="translate(10,0)">
+          {/* torso — blocky shoulders + straight-sided suit, no curves */}
+          <rect x="26" y="54" width="48" height="8" className="db-body" />
+          <rect x="32" y="62" width="36" height="46" className="db-body" />
+          <rect x="38" y="54" width="8" height="10" className="db-collar" />
+          <rect x="54" y="54" width="8" height="10" className="db-collar" />
+          <rect x="46" y="54" width="8" height="30" className="db-tie" />
+
+          {/* left arm — static */}
+          <g>
+            <rect x="20" y="58" width="8" height="30" className="db-limb" />
+            <rect x="20" y="84" width="8" height="4" className="db-cuff" />
+            <rect x="20" y="88" width="8" height="8" className="db-hand" />
+          </g>
+          {/* right arm — the one that waves / bends to the chin */}
+          <g className="db-arm-r">
+            <rect x="72" y="58" width="8" height="30" className="db-limb" />
+            <rect x="72" y="84" width="8" height="4" className="db-cuff" />
+            <rect x="72" y="88" width="8" height="8" className="db-hand" />
+          </g>
+
+          <rect x="44" y="46" width="12" height="8" className="db-skin" />
+
+          <g className="db-head-grp">
+            <rect x="34" y="2" width="32" height="14" className="db-hat" />
+            <rect x="26" y="16" width="48" height="4" className="db-hat" />
+            <rect x="30" y="14" width="40" height="4" className="db-hat-band" />
+            <rect x="34" y="18" width="32" height="28" className="db-skin" />
+            <rect x="40" y="30" width="4" height="4" className="db-eye" />
+            <rect x="56" y="30" width="4" height="4" className="db-eye" />
+            <rect x="43" y="40" width="3" height="2" className="db-mouth-corner" />
+            <rect x="54" y="40" width="3" height="2" className="db-mouth-corner" />
+            <rect x="45" y="42" width="10" height="2" className="db-mouth-closed" />
+            <rect x="45" y="42" width="10" height="4" className="db-mouth-open" />
+          </g>
+        </g>
+
+        {/* the little counter he sits behind — drawn last so it covers his lower half */}
+        <rect x="0" y="98" width="120" height="6" className="db-desk-top" />
+        <rect x="0" y="104" width="120" height="16" className="db-desk-front" />
+        <rect x="20" y="104" width="4" height="16" className="db-desk-grain" />
+        <rect x="56" y="104" width="4" height="16" className="db-desk-grain" />
+        <rect x="92" y="104" width="4" height="16" className="db-desk-grain" />
+      </svg>
+    </div>
+  )
+}
+
+// A real desk greeter's "good morning/afternoon/evening" changes with the clock —
+// the static Romanian greeting below now does the same, read once per mount.
+function timeGreeting() {
+  const h = new Date().getHours()
+  if (h < 12) return 'Bună dimineața'
+  if (h < 19) return 'Bună ziua'
+  return 'Bună seara'
+}
+
 // Every browser tab needs at least one chat to land on — reuse what's saved,
 // or start the very first one.
 function bootstrapChats() {
@@ -56,15 +121,44 @@ export default function Chat({
   const [renameValue, setRenameValue] = useState('')
   const [recording, setRecording] = useState(false)
   const [transcribing, setTranscribing] = useState(false)
+  const [pose, setPose] = useState('wave')   // 'wave' | 'idle' | 'think' | 'talk' — the desk figure's current pose
   const endRef = useRef(null)
   const recorderRef = useRef(null)
   const undoTimerRef = useRef(null)
+  const poseTimerRef = useRef(null)
   const chatIdRef = useRef(chatId)   // lets an in-flight request notice a chat switch after its await
 
   useEffect(() => { chatIdRef.current = chatId }, [chatId])
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages, busy])
   useEffect(() => () => recorderRef.current?.stop(), [])   // release the mic if the view unmounts mid-recording
   useEffect(() => () => clearTimeout(undoTimerRef.current), [])
+
+  // Wave on landing in a chat (including the very first mount), then settle to idle.
+  useEffect(() => {
+    setPose('wave')
+    clearTimeout(poseTimerRef.current)
+    poseTimerRef.current = setTimeout(() => setPose('idle'), 1600)
+    return () => clearTimeout(poseTimerRef.current)
+  }, [chatId])
+
+  // Hand-to-chin the moment a request goes out...
+  useEffect(() => {
+    if (busy) { clearTimeout(poseTimerRef.current); setPose('think') }
+  }, [busy])
+
+  // ...and "talking" once it lands, for as long as the user hasn't started typing again.
+  useEffect(() => {
+    if (busy) return
+    const last = messages[messages.length - 1]
+    if (last && (last.role === 'bot' || last.role === 'err')) setPose('talk')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [busy])
+
+  // Typing the next question breaks the "talking" pose back to idle.
+  useEffect(() => {
+    if (!question.trim()) return
+    setPose((p) => (p === 'talk' ? 'idle' : p))
+  }, [question])
 
   // Autosave: every change to the active chat's messages/history is persisted
   // immediately, keyed by whichever chatId is current at the time.
@@ -362,6 +456,7 @@ export default function Chat({
       </aside>
     <div className="chat-wrap">
       <div className="chat-bar chat-topbar">
+        <DeskPerson pose={pose} />
         {/* token count + persona/mode now surface in the page-title row up top — see onStatus */}
         <label className="check" style={{ margin: 0 }} title="Speak replies out loud (Azure AI Speech) instead of showing plain text">
           <input type="checkbox" checked={voiceMode} onChange={(e) => setVoiceMode(e.target.checked)} />
@@ -375,28 +470,36 @@ export default function Chat({
 
       <div className="msgs">
         {messages.length === 0 && (
-          <div className="msg bot">
-            Bună ziua! Sunt Libra AI, asistentul digital Libra Bank. Vă pot ajuta cu informații
-            despre conturi, depozite, dobânzi, taxe și alte servicii ale băncii. Cu ce vă pot fi
-            de folos astăzi?
+          <div className="msg-row bot">
+            <span className="avatar"><span className="status-dot" /></span>
+            <div className="msg bot">
+              {timeGreeting()}! Sunt Libra AI, asistentul digital Libra Bank. Vă pot ajuta cu informații
+              despre conturi, depozite, dobânzi, taxe și alte servicii ale băncii. Cu ce vă pot fi
+              de folos astăzi?
+            </div>
           </div>
         )}
 
         {messages.map((m, i) => {
-          if (m.role === 'user') return <div className="msg user" key={i}>{m.text}</div>
+          if (m.role === 'user') return <div className="msg-row user" key={i}><div className="msg user">{m.text}</div></div>
           if (m.role === 'err') return (
-            <div className="msg err" key={i}>
-              <strong>Request failed:</strong> {m.text}
-              {i === messages.length - 1 && (
-                <div style={{ marginTop: '.6rem' }}>
-                  <button className="btn btn-outline btn-sm" onClick={regenerate} disabled={busy}>↻ try again</button>
-                </div>
-              )}
+            <div className="msg-row bot" key={i}>
+              <span className="avatar"><span className="status-dot" /></span>
+              <div className="msg err">
+                <strong>Request failed:</strong> {m.text}
+                {i === messages.length - 1 && (
+                  <div style={{ marginTop: '.6rem' }}>
+                    <button className="btn btn-outline btn-sm" onClick={regenerate} disabled={busy}>↻ try again</button>
+                  </div>
+                )}
+              </div>
             </div>
           )
           const d = m.data
           return (
-            <div className="msg bot" key={i}>
+            <div className="msg-row bot" key={i}>
+            <span className="avatar"><span className="status-dot" /></span>
+            <div className="msg bot">
               {m.audio ? (
                 <>
                   <audio controls autoPlay src={m.audio.url} style={{ width: '100%' }} />
@@ -439,10 +542,29 @@ export default function Chat({
                 {d.usage && <span className="badge muted">{d.usage.prompt_tokens}↑ {d.usage.completion_tokens}↓ tokens</span>}
                 {d.dropped_below_threshold > 0 &&
                   <span className="badge muted">{d.dropped_below_threshold} dropped below threshold</span>}
-                {d.security_notes?.length > 0 && (
+                {d.security_notes?.some((n) => n.startsWith('passage [')) && (
                   <span className="badge crimson" title={d.security_notes.join('; ')}>⚠ injection blocked</span>
                 )}
+                {d.security_notes?.some((n) => n.startsWith('blocked by provider content filter')) && (
+                  <span className="badge crimson" title={d.security_notes.join('; ')}>🛡 content filtered</span>
+                )}
+                {d.tool_calls?.length > 0 && (
+                  <span className="badge gold" title={d.tool_calls.map((t) => `${t.name}(${JSON.stringify(t.arguments)})`).join('; ')}>
+                    tools: {d.tool_calls.map((t) => t.name.replaceAll('_', ' ')).join(', ')}
+                  </span>
+                )}
               </div>
+              {d.tool_calls?.length > 0 && (
+                <details className="sources">
+                  <summary>{d.tool_calls.length} tool call{d.tool_calls.length > 1 ? 's' : ''}</summary>
+                  {d.tool_calls.map((t, j) => (
+                    <div className="src" key={j}>
+                      <span className="score">{t.name}({JSON.stringify(t.arguments)})</span>
+                      <div>{JSON.stringify(t.result)}</div>
+                    </div>
+                  ))}
+                </details>
+              )}
               {d.augmented && (d.retrieved?.length ?? 0) === 0 && (
                 <p className="err" style={{ margin: '.5rem 0 0' }}>
                   Nothing relevant found in the knowledge base — the answer above is not grounded
@@ -466,11 +588,15 @@ export default function Chat({
                 <pre className="out" style={{ marginTop: '.4rem' }}>{`SYSTEM:\n${d.system_prompt}\n\nUSER:\n${d.prompt_sent}`}</pre>
               </details>
             </div>
+            </div>
           )
         })}
         {busy && (
-          <div className="msg bot typing-indicator" title="Thinking…">
-            <span /><span /><span />
+          <div className="msg-row bot">
+            <span className="avatar"><span className="status-dot" /></span>
+            <div className="msg bot typing-indicator" title="Thinking…">
+              <span /><span /><span />
+            </div>
           </div>
         )}
         <div ref={endRef} />

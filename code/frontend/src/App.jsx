@@ -29,7 +29,7 @@ export default function App() {
   const [foundry, setFoundry] = useState(null)
   const [health, setHealth] = useState(null)
   const [azure, setAzure] = useState(null)
-  const [theme, setTheme] = useState('dark')
+  const [theme, setTheme] = useState('light')
   const [adminOpen, setAdminOpen] = useState(false)
   const [sideOpen, setSideOpen] = useState(false)
   // Reported up from Chat (token totals + active persona) so the page-title row can
@@ -43,7 +43,7 @@ export default function App() {
   const [useHistory, setUseHistory] = useState(true)
   const [mode, setMode] = useState('local')
   const [topK, setTopK] = useState(4)
-  const [minScore, setMinScore] = useState('')
+  const [minScore, setMinScore] = useState('0.5')
   const [sourceFilter, setSourceFilter] = useState('')
   const [ttsVoice, setTtsVoice] = useState('')   // '' = server default (.env AZURE_SPEECH_VOICE)
 

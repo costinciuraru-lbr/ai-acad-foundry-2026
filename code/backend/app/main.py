@@ -360,6 +360,30 @@ def search(req: SearchRequest) -> SearchResponse:
     )
 
 
+def _content_filtered_reply(question: str, chunks, persona, hosted_only, mode: str, error: Exception):
+    """Azure's own Responsible AI content filter (hate/violence/self-harm/jailbreak)
+    blocked the request before the model produced anything — a guardrail outside this
+    app's code entirely. Surface it as an in-character refusal instead of the raw
+    provider exception, so the chat shows the assistant declining, not the app crashing.
+    """
+    system_prompt = (
+        persona.system_prompt(grounded=bool(chunks)) if persona is not None
+        else "(hosted agent — instructions live in Foundry, not available locally)"
+    )
+    prompt_sent, injection_notes = local_agent.build_user_prompt(question, chunks)
+    return local_agent.AgentReply(
+        text="I can't help with that request — it was flagged by the platform's content "
+             "safety system before it reached me. Feel free to rephrase, or ask something else.",
+        mode=mode,
+        persona=persona.name if persona is not None else hosted_only["name"],
+        system_prompt=system_prompt,
+        prompt_sent=prompt_sent,
+        provider=settings.llm_provider,
+        model="(blocked before generation)",
+        security_notes=injection_notes + [f"blocked by provider content filter: {error}"],
+    )
+
+
 # --- generation ---------------------------------------------------------------
 @app.post("/ask", response_model=AskResponse, tags=["4 · generation"])
 def ask(req: AskRequest) -> AskResponse:
@@ -426,8 +450,11 @@ def ask(req: AskRequest) -> AskResponse:
     except foundry_agent.FoundryUnavailable as e:
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=502,
-                            detail=f"Agent run failed (mode={mode}, provider={settings.llm_provider}): {e}")
+        if "content_filter" in str(e).lower():
+            reply = _content_filtered_reply(req.question, chunks, persona, hosted_only, mode, e)
+        else:
+            raise HTTPException(status_code=502,
+                                detail=f"Agent run failed (mode={mode}, provider={settings.llm_provider}): {e}")
 
     info = AgentInfo(
         name=persona.name, display_name=persona.display_name,
@@ -451,6 +478,7 @@ def ask(req: AskRequest) -> AskResponse:
         dropped_below_threshold=dropped_below_threshold,
         usage=Usage(prompt_tokens=reply.prompt_tokens, completion_tokens=reply.completion_tokens),
         security_notes=reply.security_notes,
+        tool_calls=reply.tool_calls,
     )
 
 

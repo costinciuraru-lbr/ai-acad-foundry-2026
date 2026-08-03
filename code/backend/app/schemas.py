@@ -261,6 +261,10 @@ class AskResponse(BaseModel):
         default_factory=list,
         description="Prompt-injection patterns found and redacted in retrieved passages, if any — see app/security.py",
     )
+    tool_calls: list[dict] = Field(
+        default_factory=list,
+        description="Tools the model invoked while answering (name, arguments, result) — see app/tools.py",
+    )
 
 
 # --- tools / services ---------------------------------------------------------
