@@ -28,6 +28,7 @@ export const api = {
   collection: () => request('/collection'),
   resetCollection: () => request('/collection', { method: 'DELETE' }),
   documents: () => request('/documents'),
+  referenceCards: () => request('/tools/reference-cards'),
 
   search: (payload) => request('/search', { method: 'POST', body: payload }),
   ask: (payload) => request('/ask', { method: 'POST', body: payload }),
@@ -46,6 +47,16 @@ export const api = {
     const form = new FormData()
     form.append('file', file)
     const response = await fetch('/tools/transcribe', { method: 'POST', body: form })
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}))
+      throw new Error(data.detail || `HTTP ${response.status}`)
+    }
+    return response.json()
+  },
+  identifyCard: async (file) => {
+    const form = new FormData()
+    form.append('file', file)
+    const response = await fetch('/tools/identify-card', { method: 'POST', body: form })
     if (!response.ok) {
       const data = await response.json().catch(() => ({}))
       throw new Error(data.detail || `HTTP ${response.status}`)

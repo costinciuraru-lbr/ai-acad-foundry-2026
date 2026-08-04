@@ -305,6 +305,22 @@ class TranscribeResponse(BaseModel):
     language: Optional[str] = None
 
 
+class CardIdentifyResponse(BaseModel):
+    answer: str = Field(description="Which card it is (or isn't recognized) plus its benefits — "
+                                     "grounded in the ingested card facts, never invented")
+
+
+class ReferenceCardInfo(BaseModel):
+    filename: str
+    label: str = Field(description="Which tier this photo represents, e.g. 'Libra Premium (1/2)'")
+    url: str = Field(description="GET this to fetch the raw image bytes")
+
+
+class ReferenceCardsResponse(BaseModel):
+    count: int
+    cards: list[ReferenceCardInfo]
+
+
 # --- corpus ---------------------------------------------------------------------
 class DocumentInfo(BaseModel):
     source: str = Field(description="Filename stem — the `source` key used when this doc is ingested")

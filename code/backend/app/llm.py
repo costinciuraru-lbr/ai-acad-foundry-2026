@@ -12,6 +12,7 @@ spinning forever.
 """
 from __future__ import annotations
 
+import base64
 import json
 from dataclasses import dataclass, field
 from functools import lru_cache
@@ -172,6 +173,74 @@ class LLM:
                 tool_log.append({"name": tc.function.name, "arguments": args, "result": result})
                 messages.append({"role": "tool", "tool_call_id": tc.id, "content": json.dumps(result)})
         raise RuntimeError(f"Tool-calling loop did not converge after {MAX_TOOL_ROUNDS} rounds")
+
+    # -- vision: one-shot, no tool loop — a labeled sequence of images + one text turn ---
+    def chat_vision(self, system: str, text: str, images: list[tuple[str, bytes, str]],
+                     temperature: float, max_tokens: int, extras: dict | None = None) -> ChatResult:
+        """`images` is [(label, raw_bytes, content_type), ...] — each becomes a short text
+        label immediately followed by that image, so the model can tell them apart
+        ("Libra Basic", "Libra Premium", "Customer's card", in that order).
+
+        `extras` matters here even more than in chat(): a reasoning model (the gpt-5
+        family) spends part of max_tokens on hidden reasoning before it writes anything
+        visible, and a multi-image vision prompt gives it more to reason about than a
+        plain text question — pass {"reasoning_effort": "low"} or it can burn the whole
+        budget "thinking" and return empty text with completion_tokens == max_tokens.
+        """
+        extras = extras or {}
+        if self.provider == "anthropic":
+            content = [{"type": "text", "text": text}]
+            for label, data, content_type in images:
+                content.append({"type": "text", "text": label})
+                content.append({
+                    "type": "image",
+                    "source": {"type": "base64", "media_type": content_type,
+                               "data": base64.b64encode(data).decode()},
+                })
+            r = self._client.messages.create(
+                model=self.model, system=system, max_tokens=max_tokens, temperature=temperature,
+                messages=[{"role": "user", "content": content}],
+            )
+            return ChatResult(
+                text="".join(b.text for b in r.content if b.type == "text"),
+                provider=self.provider, model=self.model,
+                prompt_tokens=r.usage.input_tokens, completion_tokens=r.usage.output_tokens,
+            )
+
+        # openai / lmstudio / azure all take the same OpenAI-style image_url content block
+        content = [{"type": "text", "text": text}]
+        for label, data, content_type in images:
+            content.append({"type": "text", "text": label})
+            b64 = base64.b64encode(data).decode()
+            content.append({"type": "image_url", "image_url": {"url": f"data:{content_type};base64,{b64}"}})
+        messages = [{"role": "system", "content": system}, {"role": "user", "content": content}]
+
+        if self.provider in ("lmstudio", "openai"):
+            kwargs: dict = {"model": self.model, "temperature": temperature, "messages": messages, **extras}
+            kwargs["max_completion_tokens" if self.provider == "openai" else "max_tokens"] = max_tokens
+            r = self._client.chat.completions.create(**kwargs)
+            u = getattr(r, "usage", None)
+            return ChatResult(
+                text=r.choices[0].message.content or "", provider=self.provider, model=self.model,
+                prompt_tokens=getattr(u, "prompt_tokens", None),
+                completion_tokens=getattr(u, "completion_tokens", None),
+            )
+
+        # azure — same max_completion_tokens rename quirk as chat()
+        try:
+            r = self._client.complete(model=self.model, temperature=temperature, max_tokens=max_tokens,
+                                      messages=messages, **({"model_extras": extras} if extras else {}))
+        except Exception as e:
+            if "max_completion_tokens" not in str(e):
+                raise
+            r = self._client.complete(model=self.model, messages=messages,
+                                      model_extras={"max_completion_tokens": max_tokens, **extras})
+        u = getattr(r, "usage", None)
+        return ChatResult(
+            text=r.choices[0].message.content or "", provider=self.provider, model=self.model,
+            prompt_tokens=getattr(u, "prompt_tokens", None),
+            completion_tokens=getattr(u, "completion_tokens", None),
+        )
 
     def describe(self) -> dict:
         return {"provider": self.provider, "model": self.model}

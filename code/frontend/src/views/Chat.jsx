@@ -43,12 +43,6 @@ function DeskPerson({ pose }) {
             <rect x="20" y="84" width="8" height="4" className="db-cuff" />
             <rect x="20" y="88" width="8" height="8" className="db-hand" />
           </g>
-          {/* right arm — the one that waves / bends to the chin */}
-          <g className="db-arm-r">
-            <rect x="72" y="58" width="8" height="30" className="db-limb" />
-            <rect x="72" y="84" width="8" height="4" className="db-cuff" />
-            <rect x="72" y="88" width="8" height="8" className="db-hand" />
-          </g>
 
           <rect x="44" y="46" width="12" height="8" className="db-skin" />
 
@@ -63,6 +57,22 @@ function DeskPerson({ pose }) {
             <rect x="54" y="40" width="3" height="2" className="db-mouth-corner" />
             <rect x="45" y="42" width="10" height="2" className="db-mouth-closed" />
             <rect x="45" y="42" width="10" height="4" className="db-mouth-open" />
+          </g>
+
+          {/* right arm — drawn last (after the head) so it, and the magnifying glass, overlay
+              the face instead of disappearing behind it whenever it swings up close */}
+          <g className="db-arm-r">
+            <rect x="72" y="58" width="8" height="30" className="db-limb" />
+            <rect x="72" y="84" width="8" height="4" className="db-cuff" />
+            <rect x="72" y="88" width="8" height="8" className="db-hand" />
+            {/* held by the handle (grips right where the hand is) — the lens sits further out
+                along the same arm axis, so raising the arm brings the lens, not the handle,
+                up to the face */}
+            <g className="db-glass">
+              <rect x="75" y="93" width="2" height="9" className="db-glass-handle" />
+              <rect x="70" y="100" width="12" height="12" className="db-glass-rim" />
+              <rect x="72" y="102" width="8" height="8" className="db-glass-lens" />
+            </g>
           </g>
         </g>
 
@@ -121,11 +131,12 @@ export default function Chat({
   const [renameValue, setRenameValue] = useState('')
   const [recording, setRecording] = useState(false)
   const [transcribing, setTranscribing] = useState(false)
-  const [pose, setPose] = useState('wave')   // 'wave' | 'idle' | 'think' | 'talk' — the desk figure's current pose
+  const [pose, setPose] = useState('wave')   // 'wave' | 'idle' | 'think' | 'talk' | 'shake' | 'inspect' — the desk figure's current pose
   const endRef = useRef(null)
   const recorderRef = useRef(null)
   const undoTimerRef = useRef(null)
   const poseTimerRef = useRef(null)
+  const cardBusyRef = useRef(false)   // true while the in-flight request is a card-photo lookup, not a text question
   const chatIdRef = useRef(chatId)   // lets an in-flight request notice a chat switch after its await
 
   useEffect(() => { chatIdRef.current = chatId }, [chatId])
@@ -141,20 +152,27 @@ export default function Chat({
     return () => clearTimeout(poseTimerRef.current)
   }, [chatId])
 
-  // Hand-to-chin the moment a request goes out...
+  // Hand-to-chin the moment a text question goes out — or, for a card photo, reach under
+  // the desk for the magnifying glass and hold it up while the photo is being classified.
   useEffect(() => {
-    if (busy) { clearTimeout(poseTimerRef.current); setPose('think') }
+    if (busy) { clearTimeout(poseTimerRef.current); setPose(cardBusyRef.current ? 'inspect' : 'think') }
   }, [busy])
 
-  // ...and "talking" once it lands, for as long as the user hasn't started typing again.
+  // ...and "talking" once it lands, for as long as the user hasn't started typing again —
+  // unless the reply itself got flagged (injection redacted / content filtered), in which
+  // case he shakes his head "no" instead of chattering away.
   useEffect(() => {
     if (busy) return
     const last = messages[messages.length - 1]
-    if (last && (last.role === 'bot' || last.role === 'err')) setPose('talk')
+    if (!last || (last.role !== 'bot' && last.role !== 'err' && last.role !== 'card')) return
+    const notes = last.data?.security_notes || []
+    const flagged = notes.some((n) => n.startsWith('passage [') || n.startsWith('blocked by provider content filter'))
+    setPose(flagged ? 'shake' : 'talk')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [busy])
 
-  // Typing the next question breaks the "talking" pose back to idle.
+  // Typing the next question breaks the "talking" pose back to idle — but not the
+  // "shake" (flagged reply) pose, which is meant to keep going until the next message.
   useEffect(() => {
     if (!question.trim()) return
     setPose((p) => (p === 'talk' ? 'idle' : p))
@@ -327,6 +345,45 @@ export default function Chat({
     }
   }
 
+  // Card-photo identification — deliberately never touches `messages`/`history` with the
+  // actual image: only the placeholder text below and the model's text answer are stored,
+  // so nothing image-shaped ever reaches chatStore's localStorage persistence. The file
+  // itself lives only in this function's local scope for the duration of the upload.
+  async function identifyCardPhoto(file) {
+    if (busy) return
+    const requestChatId = chatId
+    cardBusyRef.current = true
+    setError(null)
+    setBusyChatIds((s) => new Set(s).add(requestChatId))
+    setMessages((m) => [...m, { role: 'user', text: '📷 sent a photo of my card' }])
+    try {
+      const { answer } = await api.identifyCard(file)
+      const botMsg = { role: 'card', text: answer }
+      if (chatIdRef.current === requestChatId) {
+        setMessages((m) => [...m, botMsg])
+        setHistory((h) => [...h, { q: 'sent a photo of my card', a: answer }])
+      } else {
+        appendToChat(requestChatId, botMsg, { q: 'sent a photo of my card', a: answer })
+      }
+    } catch (e) {
+      if (chatIdRef.current === requestChatId) {
+        setMessages((m) => [...m, { role: 'err', text: e.message }])
+        setError(e.message)
+      } else {
+        appendToChat(requestChatId, { role: 'err', text: e.message })
+      }
+    } finally {
+      cardBusyRef.current = false
+      setBusyChatIds((s) => { const next = new Set(s); next.delete(requestChatId); return next })
+    }
+  }
+
+  function handleCardPhoto(e) {
+    const file = e.target.files?.[0]
+    e.target.value = ''   // never leave the file referenced in the DOM
+    if (file) identifyCardPhoto(file)
+  }
+
   async function send(overrideText, { skipUserMessage = false } = {}) {
     const text = (overrideText ?? question).trim()
     if (!text || busy) return
@@ -495,6 +552,12 @@ export default function Chat({
               </div>
             </div>
           )
+          if (m.role === 'card') return (
+            <div className="msg-row bot" key={i}>
+              <span className="avatar"><span className="status-dot" /></span>
+              <div className="msg bot">{m.text}</div>
+            </div>
+          )
           const d = m.data
           return (
             <div className="msg-row bot" key={i}>
@@ -607,6 +670,11 @@ export default function Chat({
         <textarea value={question} placeholder="Ask Libra AI…  (Enter to send, Shift+Enter for a new line)"
                   onChange={(e) => setQuestion(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }} />
+        <label className="btn btn-outline shrink" title="Send a photo of your card to identify it — the photo itself is never saved"
+               style={{ opacity: busy ? .5 : 1, pointerEvents: busy ? 'none' : 'auto' }}>
+          📷
+          <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleCardPhoto} disabled={busy} />
+        </label>
         <button className={`btn ${recording ? 'btn-primary' : 'btn-outline'} shrink`} onClick={toggleRecording}
                 disabled={busy || transcribing} title={recording ? 'Stop and send' : 'Record a spoken question'}>
           {transcribing ? <span className="spin" /> : recording ? '⏹ stop' : '🎙️'}

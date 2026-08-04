@@ -19,12 +19,13 @@ from .embeddings import get_embedder
 from .llm import get_llm
 from .schemas import (
     AgentInfo, AgentListResponse, AskRequest, AskResponse, AzureDeployment, AzureDeployments,
-    AzureStatus, ChunkInfo, ChunkRequest, ChunkResponse, CollectionInfo, DocumentInfo,
-    DocumentsResponse, FoundryAvailability, Health, HostedAgent, IngestRequest, IngestResponse,
-    PersonaSummary, ScrapeRequest, ScrapeResponse, SearchHit, SearchRequest, SearchResponse,
-    SpeakRequest, TranscribeResponse, Usage,
+    AzureStatus, CardIdentifyResponse, ChunkInfo, ChunkRequest, ChunkResponse, CollectionInfo,
+    DocumentInfo, DocumentsResponse, FoundryAvailability, Health, HostedAgent, IngestRequest,
+    IngestResponse, PersonaSummary, ReferenceCardInfo, ReferenceCardsResponse, ScrapeRequest,
+    ScrapeResponse, SearchHit, SearchRequest, SearchResponse, SpeakRequest, TranscribeResponse,
+    Usage,
 )
-from .services import speech, web
+from .services import card_vision, speech, web
 from .vectorstore import DimensionMismatch, VectorStore
 
 app = FastAPI(
@@ -644,3 +645,54 @@ async def transcribe(file: UploadFile = File(..., description="WAV, 16 kHz mono,
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"Transcription failed: {e}")
     return TranscribeResponse(**result)
+
+
+@app.post("/tools/identify-card", response_model=CardIdentifyResponse, tags=["6 · tools"])
+async def identify_card(file: UploadFile = File(..., description="Photo of the customer's debit card")):
+    """Photo → which Libra card it is, plus its benefits — one vision call, grounded in the
+    ingested card-facts, never invented. The photo is read into memory and never written to
+    disk, logged, or stored anywhere — see app/services/card_vision.py."""
+    photo = await file.read()
+    if not photo:
+        raise HTTPException(status_code=422, detail="The uploaded file is empty.")
+
+    _require_qdrant()
+    if not store.info()["exists"]:
+        raise HTTPException(status_code=404,
+                            detail="Collection is empty — POST /ingest first (needs the card-types facts to ground on).")
+    qvec = _embed(["Libra Basic Libra Premium debit card cashback annual fee benefits"])[0]
+    hits, _ = store.search(qvec, top_k=6, min_score=0.3)
+    card_facts = "\n\n".join(h["text"] for h in hits) or "(no card facts found in the knowledge base)"
+
+    try:
+        answer = card_vision.identify(photo, file.content_type or "image/jpeg", card_facts)
+    except card_vision.ReferenceImagesMissing as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Card identification failed: {e}")
+    return CardIdentifyResponse(answer=answer)
+
+
+@app.get("/tools/reference-cards", response_model=ReferenceCardsResponse, tags=["6 · tools"])
+def list_reference_cards() -> ReferenceCardsResponse:
+    """The reference photos /tools/identify-card compares customer photos against —
+    read-only, for the Documents admin view. See app/services/reference_cards/README.md."""
+    cards = [
+        ReferenceCardInfo(filename=path.name, label=label, url=f"/tools/reference-cards/{path.name}")
+        for label, path in card_vision.list_reference_photos()
+    ]
+    return ReferenceCardsResponse(count=len(cards), cards=cards)
+
+
+@app.get("/tools/reference-cards/{filename}", tags=["6 · tools"],
+          responses={200: {"content": {"image/*": {}}, "description": "The raw image"}})
+def get_reference_card(filename: str):
+    """Raw bytes of one reference card photo, by filename — for the thumbnail in Documents.
+    Guards against path traversal: only a bare filename directly inside reference_cards/
+    that matches a supported image extension is served, nothing else on disk."""
+    path = card_vision.REFERENCE_DIR / filename
+    if (path.parent != card_vision.REFERENCE_DIR or not path.is_file()
+            or path.suffix.lower() not in card_vision._EXTENSIONS):
+        raise HTTPException(status_code=404, detail="No such reference card photo.")
+    content_type = card_vision._CONTENT_TYPES.get(path.suffix.lower(), "application/octet-stream")
+    return Response(content=path.read_bytes(), media_type=content_type)

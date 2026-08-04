@@ -211,6 +211,10 @@ tr:last-child td { border-bottom: 0; }
 .db-desk-top { fill: #6b4530; }
 .db-desk-front { fill: #3e2517; }
 .db-desk-grain { fill: #2a1810; }
+.db-glass { opacity: 0; }
+.db-glass-rim { fill: #c9a227; }
+.db-glass-lens { fill: rgba(150, 220, 255, .55); }
+.db-glass-handle { fill: #6b4530; }
 
 .db-arm-r { transform-origin: 76px 58px; }
 .db-head-grp { transform-origin: 50px 34px; }
@@ -226,8 +230,23 @@ tr:last-child td { border-bottom: 0; }
 
 .pose-think .db-arm-r { animation: db-think-arm 2.6s ease-in-out infinite; }
 @keyframes db-think-arm { 0%, 100% { transform: rotate(115deg); } 50% { transform: rotate(122deg); } }
-.pose-think .db-head-grp { animation: db-think-tilt 2.6s ease-in-out infinite; }
+.pose-think .db-head-grp, .pose-inspect .db-head-grp { animation: db-think-tilt 2.6s ease-in-out infinite; }
 @keyframes db-think-tilt { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(-7deg); } }
+
+/* reach down under the desk for the magnifying glass, then hold it up to the eye —
+   loops for as long as a card photo is being classified */
+.pose-inspect .db-arm-r { animation: db-inspect-arm 3.2s ease-in-out infinite; }
+@keyframes db-inspect-arm {
+  0%, 100% { transform: rotate(8deg); }
+  15% { transform: rotate(20deg); }
+  45%, 85% { transform: rotate(123deg); }
+}
+.pose-inspect .db-glass { animation: db-inspect-glass 3.2s ease-in-out infinite; }
+@keyframes db-inspect-glass {
+  0%, 12% { opacity: 0; }
+  22%, 82% { opacity: 1; }
+  100% { opacity: 0; }
+}
 
 .pose-talk .db-head-grp { animation: db-talk-nod .9s ease-in-out infinite; }
 @keyframes db-talk-nod { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(1.5px); } }
@@ -247,6 +266,15 @@ tr:last-child td { border-bottom: 0; }
   40% { opacity: .7; }
   60% { opacity: 0; }
   80% { opacity: .6; }
+}
+
+.pose-shake .db-head-grp { animation: db-shake 2.2s ease-in-out infinite; }
+@keyframes db-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
 }
 
 .typing-indicator { display: flex; gap: .3rem; align-items: center; }
